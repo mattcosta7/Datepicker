@@ -1,0 +1,36 @@
+{
+  "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.cjs.development.js": {
+    "bundled": 3564,
+    "minified": 2190,
+    "gzipped": 954
+  },
+  "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.cjs.production.js": {
+    "bundled": 3564,
+    "minified": 2190,
+    "gzipped": 954
+  },
+  "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.es.production.js": {
+    "bundled": 3365,
+    "minified": 2013,
+    "gzipped": 901,
+    "treeshaked": {
+      "rollup": {
+        "code": 1682,
+        "import_statements": 302
+      },
+      "webpack": {
+        "code": 3063
+      }
+    }
+  },
+  "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.umd.development.js": {
+    "bundled": 4008,
+    "minified": 2055,
+    "gzipped": 1001
+  },
+  "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.umd.production.js": {
+    "bundled": 4008,
+    "minified": 2055,
+    "gzipped": 1001
+  }
+}
