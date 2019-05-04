@@ -1,36 +1,36 @@
 {
   "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.cjs.development.js": {
-    "bundled": 3564,
-    "minified": 2190,
-    "gzipped": 954
+    "bundled": 9794,
+    "minified": 5145,
+    "gzipped": 1779
   },
   "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.cjs.production.js": {
-    "bundled": 3564,
-    "minified": 2190,
-    "gzipped": 954
+    "bundled": 9794,
+    "minified": 5145,
+    "gzipped": 1779
   },
   "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.es.production.js": {
-    "bundled": 3365,
-    "minified": 2013,
-    "gzipped": 901,
+    "bundled": 9563,
+    "minified": 4686,
+    "gzipped": 1717,
     "treeshaked": {
       "rollup": {
-        "code": 1682,
-        "import_statements": 302
+        "code": 4047,
+        "import_statements": 449
       },
       "webpack": {
-        "code": 3063
+        "code": 6043
       }
     }
   },
   "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.umd.development.js": {
-    "bundled": 4008,
-    "minified": 2055,
-    "gzipped": 1001
+    "bundled": 10530,
+    "minified": 4695,
+    "gzipped": 1797
   },
   "/Users/matthewcostabile/workspace/mattcosta7/dp/dist/dp.umd.production.js": {
-    "bundled": 4008,
-    "minified": 2055,
-    "gzipped": 1001
+    "bundled": 10530,
+    "minified": 4695,
+    "gzipped": 1797
   }
 }

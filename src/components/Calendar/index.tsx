@@ -2,18 +2,12 @@
 import { jsx } from '@emotion/core';
 import css from '@emotion/css';
 import * as React from 'react';
-import {
-  startOfMonth,
-  endOfMonth,
-  getDaysInMonth,
-  getDay,
-  addDays,
-  getDate,
-  isSameDay,
-  isWeekend,
-  isSameMonth,
-} from 'date-fns';
-
+import { endOfMonth, getDaysInMonth, getDay, addDays } from 'date-fns';
+import CalendarContext, {
+  CalendarContextProvider,
+} from '../../context/Calendar';
+import { Weekday, Day } from '../Day';
+import { Header } from '../Header';
 export interface CalendarProps {
   date?: Date;
   weekDays?: string[];
@@ -21,54 +15,15 @@ export interface CalendarProps {
   locale?: string;
 }
 
-interface CalendarItemProps {
-  weekend?: boolean;
-  today?: boolean;
-}
-
-const CalendarContext = React.createContext({
-  locale: undefined,
-  monthStart: startOfMonth(new Date()),
-});
-
-const CalendarContextProvider = ({ locale, children, monthStart }: any) => {
-  const value = React.useMemo(() => ({ locale, monthStart }), []);
-  return (
-    <CalendarContext.Provider value={value}>
-      {children}
-    </CalendarContext.Provider>
-  );
-};
-
-const containerCss = css`
+const containerCss = ({ rtl }: any) => css`
   display: flex;
   flex-wrap: wrap;
+
+  direction: ${rtl ? 'rtl' : 'ltr'};
 `;
 
-const itemCss = ({ weekend, today }: CalendarItemProps = {}) => css`
-  appearance: none;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  flex: 1 0 ${100 / 7}%;
-  text-align: center;
-
-  ${weekend &&
-    css`
-      color: green;
-    `}
-  ${today &&
-    css`
-      color: red;
-    `}
-
-  &[disabled] {
-    cursor: not-allowed;
-    color: grey;
-  }
-`;
-
-export const Calendar = React.memo(({ date, locale }: CalendarProps) => {
+const CalendarRows = React.memo(() => {
+  const { locale, pageDate, rtl } = React.useContext(CalendarContext);
   const weekDays = React.useMemo(() => {
     const arr = [];
     for (var day = 4; day <= 10; day++) {
@@ -81,78 +36,54 @@ export const Calendar = React.memo(({ date, locale }: CalendarProps) => {
     return arr;
   }, []);
 
-  const monthStart = React.useMemo(() => {
-    return startOfMonth(date || new Date());
-  }, [date]);
-
-  const blankDaysStart = React.useMemo(() => {
-    return Array.from({ length: getDay(monthStart) }, (_, i) => {
-      addDays(monthStart, -i);
-    });
-  }, [monthStart]);
-
   const daysInMonth = React.useMemo(() => {
     return [
-      ...Array.from({ length: getDaysInMonth(monthStart) }),
+      ...Array.from({ length: getDay(pageDate) }),
+      ...Array.from({ length: getDaysInMonth(pageDate) }),
       ...Array.from({
-        length: 6 - getDay(endOfMonth(monthStart)),
+        length: 6 - getDay(endOfMonth(pageDate)),
       }),
-    ];
-  }, [monthStart]);
+    ].map((_, i) => addDays(pageDate, i - getDay(pageDate)));
+  }, [pageDate]);
 
   return (
-    <CalendarContextProvider locale={locale} monthStart={monthStart}>
-      <div css={containerCss}>
-        {weekDays.map((v, i) => (
-          <span css={itemCss({ weekend: i === 0 || i === 6 })} key={v}>
+    <main css={containerCss({ rtl })}>
+      {weekDays.map((v, i) => {
+        return (
+          <Weekday key={v} dayNumber={i}>
             {v}
-          </span>
-        ))}
-        {blankDaysStart.map((_, i) => {
-          return <span role="presentational" css={itemCss()} key={i} />;
-        })}
-        {daysInMonth.map((_, i) => {
-          return <CalendarDay key={i} daysSinceMonthStart={i} />;
-        })}
-      </div>
-    </CalendarContextProvider>
+          </Weekday>
+        );
+      })}
+
+      {daysInMonth.map(v => {
+        return <Day key={v} date={v} />;
+      })}
+    </main>
   );
 });
 
-const CalendarDay = React.memo(({ daysSinceMonthStart }: any) => {
-  const { locale, monthStart } = React.useContext(CalendarContext);
+const defaultLocale = () => {
+  try {
+    return (
+      navigator.language ||
+      (navigator as any).browserLanguage ||
+      (navigator.languages || ['en'])[0]
+    );
+  } catch {
+    return 'en';
+  }
+};
 
-  const date = React.useMemo(() => addDays(monthStart, daysSinceMonthStart), [
-    monthStart,
-    daysSinceMonthStart,
-  ]);
-
-  const dateString = React.useMemo(() => {
-    return new Intl.DateTimeFormat(locale, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-    }).format(date);
-  }, [date, locale]);
-
-  const styles = React.useMemo(
-    () =>
-      itemCss({
-        weekend: isWeekend(date),
-        today: isSameDay(new Date(), date),
-      }),
-    []
-  );
-  return (
-    <button
-      css={styles}
-      key={dateString}
-      title={dateString}
-      aria-label={dateString}
-      disabled={!isSameMonth(monthStart, date)}
-    >
-      {getDate(date)}
-    </button>
-  );
-});
+export const Calendar = React.memo(
+  ({ date, locale = defaultLocale() }: CalendarProps) => {
+    return (
+      <CalendarContextProvider locale={locale} date={date}>
+        <React.Fragment>
+          <Header />
+          <CalendarRows />
+        </React.Fragment>
+      </CalendarContextProvider>
+    );
+  }
+);
