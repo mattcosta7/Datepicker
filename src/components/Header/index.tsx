@@ -1,18 +1,23 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/core';
-import css from '@emotion/css';
+import styled from 'styled-components';
 import * as React from 'react';
 import CalendarContext from '../../context/Calendar';
 import { addMonths, addYears, getMonth, getYear } from 'date-fns';
+import Button from '../Button';
+import { MAX_DATE_YEAR, MIN_DATE_YEAR } from '../../utils/date';
 
-const headerCss = ({ rtl }: any) => css`
+const Container = styled.header<{ rtl?: boolean }>`
+  direction: ${({ rtl }) => (rtl ? 'rtl' : 'ltr')};
   display: flex;
   justify-content: space-between;
-
-  direction: ${rtl ? 'rtl' : 'ltr'};
+  padding: 1rem;
 `;
 
-export const Header = React.memo(() => {
+const allYears = Array.from(
+  { length: MAX_DATE_YEAR - MIN_DATE_YEAR },
+  (_k, v) => v + MIN_DATE_YEAR
+);
+
+const Header = () => {
   const {
     locale,
     decrementPageMonth,
@@ -24,6 +29,7 @@ export const Header = React.memo(() => {
     setPageYear,
     rtl,
   } = React.useContext(CalendarContext);
+
   const months = React.useMemo(() => {
     const format = new Intl.DateTimeFormat(locale, { month: 'long' });
     const _months: string[] = [];
@@ -33,28 +39,6 @@ export const Header = React.memo(() => {
     }
     return _months;
   }, [locale]);
-  const dateFormatter = React.useMemo(() => {
-    return new Intl.DateTimeFormat(locale, {
-      month: 'long',
-      year: 'numeric',
-    }).format;
-  }, [locale]);
-
-  const nextMonthDateString = React.useMemo(() => {
-    return dateFormatter(addMonths(pageDate, 1));
-  }, [pageDate, dateFormatter]);
-
-  const nextYearDateString = React.useMemo(() => {
-    return dateFormatter(addYears(pageDate, 1));
-  }, [pageDate, dateFormatter]);
-
-  const prevMonthDateString = React.useMemo(() => {
-    return dateFormatter(addMonths(pageDate, -1));
-  }, [pageDate, dateFormatter]);
-
-  const prevYearDateString = React.useMemo(() => {
-    return dateFormatter(addYears(pageDate, -1));
-  }, [pageDate, dateFormatter]);
 
   const handleMonthChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -64,37 +48,43 @@ export const Header = React.memo(() => {
   );
 
   const handleYearChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setPageYear(parseInt(e.target.value, 10));
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = parseInt(e.target.value, 10);
+      setPageYear(value);
     },
     [setPageMonth]
   );
 
-  const currentMonthIndex = React.useMemo(() => {
-    return getMonth(pageDate);
-  }, [pageDate]);
+  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [
+    pageDate.getTime(),
+  ]);
 
-  const currentYearIndex = React.useMemo(() => {
-    return getYear(pageDate);
-  }, [pageDate]);
+  const currentYearIndex = React.useMemo(() => getYear(pageDate), [
+    pageDate.getTime(),
+  ]);
 
+  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [
+    pageDate.getTime(),
+  ]);
+  const prevYear = React.useMemo(() => addYears(pageDate, -1), [
+    pageDate.getTime(),
+  ]);
+  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [
+    pageDate.getTime(),
+  ]);
+  const nextYear = React.useMemo(() => addYears(pageDate, 1), [
+    pageDate.getTime(),
+  ]);
   return (
-    <header css={headerCss({ rtl })}>
+    <Container rtl={rtl}>
       <div>
-        <button
-          title={`Set calendar date to ${prevYearDateString}`}
-          aria-label={`Set calendar date to ${prevYearDateString}`}
-          onClick={decrementPageYear}
-        >
+        <Button date={prevYear} onClick={decrementPageYear}>
           {'<<'}
-        </button>
-        <button
-          title={`Set calendar date to ${prevMonthDateString}`}
-          aria-label={`Set calendar date to ${prevMonthDateString}`}
-          onClick={decrementPageMonth}
-        >
+        </Button>
+
+        <Button date={prevMonth} onClick={decrementPageMonth}>
           {'<'}
-        </button>
+        </Button>
       </div>
 
       <div>
@@ -105,29 +95,26 @@ export const Header = React.memo(() => {
             </option>
           ))}
         </select>
-        <input
-          type="number"
-          value={currentYearIndex}
-          onChange={handleYearChange}
-        />
+        <select value={currentYearIndex} onChange={handleYearChange}>
+          {allYears.map(year => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>
-        <button
-          onClick={incrementPageMonth}
-          title={`Set calendar date to ${nextMonthDateString}`}
-          aria-label={`Set calendar date to ${nextMonthDateString}`}
-        >
+        <Button date={nextMonth} onClick={incrementPageMonth}>
           {'>'}
-        </button>
-        <button
-          title={`Set calendar date to ${nextYearDateString}`}
-          aria-label={`Set calendar date to ${nextYearDateString}`}
-          onClick={incrementPageYear}
-        >
+        </Button>
+
+        <Button date={nextYear} onClick={incrementPageYear}>
           {'>>'}
-        </button>
+        </Button>
       </div>
-    </header>
+    </Container>
   );
-});
+};
+
+export default React.memo(Header);

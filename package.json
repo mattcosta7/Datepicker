@@ -15,7 +15,8 @@
   },
   "peerDependencies": {
     "react": ">=16.6",
-    "react-dom": ">=16.6"
+    "react-dom": ">=16.6",
+    "styled-components": "^5.0.0-3.canary-sheet"
   },
   "husky": {
     "hooks": {
@@ -32,16 +33,18 @@
     "@types/jest": "^24.0.12",
     "@types/react": "^16.8.16",
     "@types/react-dom": "^16.8.4",
+    "@types/styled-components": "^4.1.14",
     "husky": "^2.2.0",
     "prettier": "^1.17.0",
     "pretty-quick": "^1.10.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "styled-components": "^5.0.0-3.canary-sheet",
     "tsdx": "^0.5.6",
     "typescript": "^3.4.5"
   },
   "dependencies": {
-    "@emotion/core": "^10.0.10",
-    "date-fns": "^2.0.0-alpha.27"
+    "date-fns": "^2.0.0-alpha.27",
+    "react-window": "^1.8.1"
   }
 }

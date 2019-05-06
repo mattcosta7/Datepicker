@@ -1,5 +1,11 @@
 import * as React from 'react';
 import { startOfMonth, addMonths, addYears, setMonth, setYear } from 'date-fns';
+import {
+  MIN_DATE,
+  MAX_DATE,
+  MIN_DATE_YEAR,
+  MAX_DATE_YEAR,
+} from '../utils/date';
 
 const rtlLocales = [
   'ae' /* Avestan */,
@@ -38,39 +44,78 @@ const CalendarContext = React.createContext({
 export default CalendarContext;
 
 export const CalendarContextProvider = ({ locale, children, date }: any) => {
-  const [pageDate, setPageDate] = React.useState(() => {
-    return startOfMonth(date || new Date());
-  });
+  const [pageDate, setPageDate] = React.useState(
+    startOfMonth(date || new Date())
+  );
+
+  const makeErrorFormatter = React.useCallback(
+    (locale?: string) =>
+      new Intl.DateTimeFormat(locale, {
+        era: 'short',
+        year: 'numeric',
+        month: 'long',
+      }).format,
+    [locale]
+  );
+
+  const handleSetPageDate = React.useCallback(
+    date => {
+      if (date.getTime() !== date.getTime()) {
+        const formatter = makeErrorFormatter(locale);
+        console.error(`
+        Attempted to set an invalid date, it may be because Javascript dates only support dates between ${formatter(
+          MIN_DATE
+        )} and ${formatter(MAX_DATE)}.
+    `);
+        return;
+      }
+
+      const year = date.getFullYear();
+      if (year > MAX_DATE_YEAR || year < MIN_DATE_YEAR) {
+        const formatter = makeErrorFormatter(locale);
+        console.error(`
+        Javascript dates only support dates between ${formatter(
+          MIN_DATE
+        )} and ${formatter(MAX_DATE)}.
+      `);
+        return;
+      }
+
+      setPageDate(date);
+    },
+    [setPageDate, locale]
+  );
 
   const decrementPageMonth = React.useCallback(() => {
-    setPageDate(addMonths(pageDate, -1));
-  }, [pageDate]);
+    handleSetPageDate(addMonths(pageDate, -1));
+  }, [pageDate.getTime(), handleSetPageDate]);
 
   const incrementPageMonth = React.useCallback(() => {
-    setPageDate(addMonths(pageDate, 1));
-  }, [pageDate]);
+    handleSetPageDate(addMonths(pageDate, 1));
+  }, [pageDate.getTime(), handleSetPageDate]);
 
   const decrementPageYear = React.useCallback(() => {
-    setPageDate(addYears(pageDate, -1));
-  }, [pageDate]);
+    handleSetPageDate(addYears(pageDate, -1));
+  }, [pageDate.getTime(), handleSetPageDate]);
 
   const incrementPageYear = React.useCallback(() => {
-    setPageDate(addYears(pageDate, 1));
-  }, [pageDate]);
+    handleSetPageDate(addYears(pageDate, 1));
+  }, [pageDate.getTime(), handleSetPageDate]);
 
   const setPageMonth = React.useCallback(
     (month: number) => {
-      if (!month) return;
-      setPageDate(setMonth(pageDate, month));
+      if (!month && month !== 0) return;
+      handleSetPageDate(setMonth(pageDate, month));
     },
-    [pageDate]
+    [pageDate.getTime(), handleSetPageDate]
   );
+
   const setPageYear = React.useCallback(
     (year: number) => {
-      if (!year) return;
-      setPageDate(setYear(pageDate, year));
+      if (!year && year !== 0) return;
+      handleSetPageDate(setYear(pageDate, year));
     },
-    [pageDate]
+    [pageDate.getTime(), handleSetPageDate]
   );
 
   const rtl = React.useMemo(() => {
