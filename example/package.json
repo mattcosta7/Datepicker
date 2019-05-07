@@ -10,6 +10,7 @@
     "react-app-polyfill": "^1.0.0"
   },
   "devDependencies": {
+    "@types/react-window": "^1.8.0",
     "parcel": "^1.12.3"
   }
 }

@@ -1,44 +1,8 @@
+/** @jsx jsx */
 import * as React from 'react';
-import styled, { css } from 'styled-components';
+import { jsx, css } from '@emotion/core';
 import { isSameDay, isWeekend, isSameMonth } from 'date-fns';
 import CalendarContext from '../../context/Calendar';
-
-interface CalendarItemProps {
-  isWeekend?: boolean;
-  isToday?: boolean;
-  isWeekdayName?: boolean;
-}
-
-const Button = styled.button<CalendarItemProps>`
-  appearance: none;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  flex: 1 0 ${100 / 7}%;
-  text-align: center;
-
-  ${({ isWeekend: weekend }) =>
-    weekend &&
-    css`
-      color: green;
-    `}
-  ${({ isToday: today }) =>
-    today &&
-    css`
-      color: red;
-    `}
-
-  &[disabled] {
-    cursor: not-allowed;
-    color: grey;
-  }
-
-  ${({ isWeekdayName }) =>
-    isWeekdayName &&
-    css`
-      cursor: default;
-    `}
-`;
 
 const Day = ({ date }: any) => {
   const { locale, pageDate } = React.useContext(CalendarContext);
@@ -53,9 +17,13 @@ const Day = ({ date }: any) => {
   }, [date, locale]);
 
   const sameMonth = React.useMemo(() => isSameMonth(pageDate, date), [
-    pageDate.getTime(),
+    pageDate,
     date,
   ]);
+
+  const handleClick = React.useCallback(() => {
+    sameMonth ? alert(dateString) : undefined;
+  }, [sameMonth, dateString]);
 
   const formattedDay = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
@@ -64,17 +32,37 @@ const Day = ({ date }: any) => {
   }, [locale, date]);
 
   return (
-    <Button
-      isWeekend={isWeekend(date)}
-      isToday={isSameDay(new Date(), date)}
+    <button
       key={dateString}
       title={dateString}
       aria-label={dateString}
       disabled={!sameMonth}
-      onClick={sameMonth ? () => alert(dateString) : undefined}
+      onClick={handleClick}
+      css={(_theme: any) => css`
+        appearance: none;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        flex: 1 0 ${100 / 7}%;
+        text-align: center;
+
+        ${isWeekend(date) &&
+          css`
+            color: green;
+          `}
+        ${isSameDay(new Date(), date) &&
+          css`
+            color: red;
+          `}
+
+        &[disabled] {
+          cursor: not-allowed;
+          color: grey;
+        }
+      `}
     >
       {formattedDay}
-    </Button>
+    </button>
   );
 };
 

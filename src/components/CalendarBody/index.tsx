@@ -1,15 +1,18 @@
-import styled from 'styled-components';
+/** @jsx jsx */
+import { jsx, css } from '@emotion/core';
 import * as React from 'react';
 import { endOfMonth, getDaysInMonth, getDay, addDays } from 'date-fns';
 import CalendarContext from '../../context/Calendar';
 import Day from '../Day';
 import Weekday from '../Weekday';
 
-const Container = styled.header<{ rtl?: boolean }>`
-  display: flex;
-  flex-wrap: wrap;
-  direction: ${({ rtl }) => (rtl ? 'rtl' : 'ltr')};
-`;
+const containerCss = ({ rtl }: { rtl?: boolean }) => {
+  return css`
+    display: flex;
+    flex-wrap: wrap;
+    direction: ${rtl ? 'rtl' : 'ltr'};
+  `;
+};
 
 const CalendarBody = () => {
   const { locale, pageDate, rtl } = React.useContext(CalendarContext);
@@ -31,11 +34,11 @@ const CalendarBody = () => {
         length: 6 - getDay(endOfMonth(pageDate)),
       }),
     ].map((_, i) => addDays(pageDate, i - getDay(pageDate)));
-  }, [pageDate.getTime()]);
+  }, [pageDate]);
 
   return (
     <main>
-      <Container rtl={rtl}>
+      <header css={props => containerCss({ rtl, ...props })}>
         {weekDays.map((v, i) => {
           return (
             <Weekday key={v} dayNumber={i}>
@@ -43,12 +46,12 @@ const CalendarBody = () => {
             </Weekday>
           );
         })}
-      </Container>
-      <Container as="section">
+      </header>
+      <section css={props => containerCss({ rtl, ...props })}>
         {daysInMonth.map(v => {
           return <Day key={v} date={v} />;
         })}
-      </Container>
+      </section>
     </main>
   );
 };

@@ -1,21 +1,9 @@
-import styled from 'styled-components';
+/** @jsx jsx */
+import { jsx, css } from '@emotion/core';
 import * as React from 'react';
 import CalendarContext from '../../context/Calendar';
-import { addMonths, addYears, getMonth, getYear } from 'date-fns';
+import { addMonths, addYears, getMonth } from 'date-fns';
 import Button from '../Button';
-import { MAX_DATE_YEAR, MIN_DATE_YEAR } from '../../utils/date';
-
-const Container = styled.header<{ rtl?: boolean }>`
-  direction: ${({ rtl }) => (rtl ? 'rtl' : 'ltr')};
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-`;
-
-const allYears = Array.from(
-  { length: MAX_DATE_YEAR - MIN_DATE_YEAR },
-  (_k, v) => v + MIN_DATE_YEAR
-);
 
 const Header = () => {
   const {
@@ -48,35 +36,48 @@ const Header = () => {
   );
 
   const handleYearChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const value = parseInt(e.target.value, 10);
-      setPageYear(value);
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      console.log(e.target.value);
+
+      setPageYear(parseInt(e.target.value || '0', 10));
     },
     [setPageMonth]
   );
 
-  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [
-    pageDate.getTime(),
-  ]);
+  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [pageDate]);
 
-  const currentYearIndex = React.useMemo(() => getYear(pageDate), [
-    pageDate.getTime(),
-  ]);
+  const yearFormatter = React.useMemo(
+    () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format,
+    [locale]
+  );
 
-  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [
-    pageDate.getTime(),
-  ]);
-  const prevYear = React.useMemo(() => addYears(pageDate, -1), [
-    pageDate.getTime(),
-  ]);
-  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [
-    pageDate.getTime(),
-  ]);
-  const nextYear = React.useMemo(() => addYears(pageDate, 1), [
-    pageDate.getTime(),
-  ]);
+  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [pageDate]);
+  const prevYear = React.useMemo(() => addYears(pageDate, -1), [pageDate]);
+  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [pageDate]);
+  const nextYear = React.useMemo(() => addYears(pageDate, 1), [pageDate]);
+
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      switch (e.key) {
+        case 'ArrowUp':
+          incrementPageYear();
+          break;
+        case 'ArrowDown':
+          decrementPageYear();
+          break;
+      }
+    },
+    [pageDate, incrementPageYear, decrementPageYear]
+  );
   return (
-    <Container rtl={rtl}>
+    <header
+      css={(_theme: any) => css`
+        direction: ${rtl ? 'rtl' : 'ltr'};
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+      `}
+    >
       <div>
         <Button date={prevYear} onClick={decrementPageYear}>
           {'<<'}
@@ -90,18 +91,55 @@ const Header = () => {
       <div>
         <select value={currentMonthIndex} onChange={handleMonthChange}>
           {months.map((month, i) => (
-            <option key={month} value={i}>
+            <option key={`${month}${i}`} value={i}>
               {month}
             </option>
           ))}
         </select>
-        <select value={currentYearIndex} onChange={handleYearChange}>
-          {allYears.map(year => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+        <div
+          css={(_theme: any) => css`
+            position: relative;
+          `}
+        >
+          <input
+            css={(_theme: any) => css`
+              appearance: none;
+              border: 0;
+              background: transparent;
+            `}
+            value={yearFormatter(pageDate)}
+            onChange={handleYearChange}
+            onKeyDown={handleKeyDown}
+          />
+          <div
+            css={(_theme: any) => css`
+              display: flex;
+              flex-direction: column;
+              position: absolute;
+              right: 0;
+              top: 0;
+            `}
+          >
+            <button
+              css={(_theme: any) => css`
+                border: 0;
+                padding: 0;
+              `}
+              onClick={incrementPageYear}
+            >
+              +
+            </button>
+            <button
+              css={(_theme: any) => css`
+                border: 0;
+                padding: 0;
+              `}
+              onClick={decrementPageYear}
+            >
+              -
+            </button>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -113,7 +151,7 @@ const Header = () => {
           {'>>'}
         </Button>
       </div>
-    </Container>
+    </header>
   );
 };
 

@@ -37,7 +37,7 @@ const CalendarContext = React.createContext({
   decrementPageYear: () => {},
   incrementPageYear: () => {},
   setPageMonth: (_month: number) => {},
-  setPageYear: (_month: number) => {},
+  setPageYear: (_year: number) => {},
   rtl: false,
 });
 
@@ -88,26 +88,26 @@ export const CalendarContextProvider = ({ locale, children, date }: any) => {
 
   const decrementPageMonth = React.useCallback(() => {
     handleSetPageDate(addMonths(pageDate, -1));
-  }, [pageDate.getTime(), handleSetPageDate]);
+  }, [pageDate, handleSetPageDate]);
 
   const incrementPageMonth = React.useCallback(() => {
     handleSetPageDate(addMonths(pageDate, 1));
-  }, [pageDate.getTime(), handleSetPageDate]);
+  }, [pageDate, handleSetPageDate]);
 
   const decrementPageYear = React.useCallback(() => {
     handleSetPageDate(addYears(pageDate, -1));
-  }, [pageDate.getTime(), handleSetPageDate]);
+  }, [pageDate, handleSetPageDate]);
 
   const incrementPageYear = React.useCallback(() => {
     handleSetPageDate(addYears(pageDate, 1));
-  }, [pageDate.getTime(), handleSetPageDate]);
+  }, [pageDate, handleSetPageDate]);
 
   const setPageMonth = React.useCallback(
     (month: number) => {
       if (!month && month !== 0) return;
       handleSetPageDate(setMonth(pageDate, month));
     },
-    [pageDate.getTime(), handleSetPageDate]
+    [pageDate, handleSetPageDate]
   );
 
   const setPageYear = React.useCallback(
@@ -115,12 +115,17 @@ export const CalendarContextProvider = ({ locale, children, date }: any) => {
       if (!year && year !== 0) return;
       handleSetPageDate(setYear(pageDate, year));
     },
-    [pageDate.getTime(), handleSetPageDate]
+    [pageDate, handleSetPageDate]
   );
 
   const rtl = React.useMemo(() => {
     return !!rtlLocales.find(rtlLocale => {
-      return rtlLocale.split('-')[0].toLowerCase() === locale.toLowerCase();
+      return !!locale.find(
+        (l: string) =>
+          l === rtlLocale ||
+          l.startsWith(rtlLocale) ||
+          rtlLocale.split('-')[0] === l.split('-')[0]
+      );
     });
   }, [locale]);
 

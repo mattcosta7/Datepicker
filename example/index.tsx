@@ -463,4 +463,4 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.unstable_createRoot(document.getElementById('root')).render(<App />);
