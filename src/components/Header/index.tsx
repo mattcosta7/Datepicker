@@ -16,7 +16,7 @@ import {
   INCREMENT_PAGE_YEAR,
   SET_PAGE_MONTH,
   SET_PAGE_YEAR,
-} from '../../actions/types';
+} from '../../types/actions';
 
 const Header = () => {
   const dispatch = useCalendarDispatch();

@@ -4,7 +4,8 @@ import * as ReactDOM from 'react-dom';
 import { Calendar } from '../src';
 
 const App = () => {
-  const [locale, setLocale] = React.useState<string | undefined>('');
+  const [date, setDate] = React.useState<Date | undefined>(undefined);
+  const [locale, setLocale] = React.useState<string | undefined>(undefined);
   const locales = {
     af_NA: 'Afrikaans (Namibia)',
     af_ZA: 'Afrikaans (South Africa)',
@@ -453,14 +454,16 @@ const App = () => {
       >
         <option />
         {Object.entries(locales).map(([key, value]) => (
-          <option key={key} value={key}>
+          <option key={key} value={key.replace(/_/g, '-')}>
             {value}
           </option>
         ))}
       </select>
-      <Calendar locale={locale ? locale.replace(/_/g, '-') : undefined} />
+      <Calendar locale={locale} date={date} />
     </div>
   );
 };
 
-ReactDOM.unstable_createRoot(document.getElementById('root')).render(<App />);
+(ReactDOM as any)
+  .unstable_createRoot(document.getElementById('root'))
+  .render(<App />);

@@ -12,6 +12,13 @@ export interface CalendarProps {
   locale?: string | string[];
   theme?: any;
   onChange?: () => {};
+  style?: {
+    day: React.CSSProperties;
+    weekday: React.CSSProperties;
+    body: React.CSSProperties;
+    header: React.CSSProperties;
+    headerButtons: React.CSSProperties;
+  };
 }
 
 const Calendar = ({
@@ -42,7 +49,7 @@ const Calendar = ({
         date={date}
         onChange={onChange}
       >
-        <div data-test="@angkor/calendar">
+        <div>
           <Header />
           <CalendarBody />
         </div>

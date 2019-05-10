@@ -1,12 +1,13 @@
 /** @jsx jsx */
 import * as React from 'react';
 import { jsx, css } from '@emotion/core';
-import { isSameDay, isWeekend, isSameMonth } from 'date-fns';
+import { isSameDay, isWeekend, isSameMonth, getDate } from 'date-fns';
 import {
   usePageDate,
   useFocusDate,
   useCalendarDispatch,
   useLocale,
+  useSelectedDate,
 } from '../../context/Calendar';
 import {
   SET_FOCUS_DATE,
@@ -14,13 +15,15 @@ import {
   DECREMENT_FOCUS_DATE,
   DECREMENT_FOCUS_MONTH,
   DECREMENT_FOCUS_YEAR,
-} from '../../actions/types';
+  SET_SELECTED_DATE,
+} from '../../types/actions';
 const Day = ({ date }: any) => {
   const ref = React.useRef<HTMLButtonElement>(null);
   const pageDate = usePageDate();
   const [locale] = useLocale();
   const dispatch = useCalendarDispatch();
   const focusDate = useFocusDate();
+  const selectedDate = useSelectedDate();
 
   const dateString = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
@@ -38,7 +41,7 @@ const Day = ({ date }: any) => {
 
   const handleClick = React.useCallback(
     (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      console.log(date);
+      dispatch({ type: SET_SELECTED_DATE, selectedDate: date });
     },
     [date]
   );
@@ -56,6 +59,14 @@ const Day = ({ date }: any) => {
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLButtonElement>) => {
       switch (e.key) {
+        case 'ArrowUp': {
+          dispatch({ type: DECREMENT_FOCUS_DATE, days: 7 });
+          break;
+        }
+        case 'ArrowDown': {
+          dispatch({ type: INCREMENT_FOCUS_DATE, days: 7 });
+          break;
+        }
         case 'ArrowLeft': {
           dispatch({ type: DECREMENT_FOCUS_DATE });
           break;
@@ -84,11 +95,26 @@ const Day = ({ date }: any) => {
     },
     [dispatch]
   );
+
+  const getTabIndex = React.useCallback(d => (isSameDay(date, d) ? 0 : -1), [
+    date,
+  ]);
+  const canTabTo = React.useMemo(() => {
+    if (focusDate && isSameMonth(pageDate, focusDate)) {
+      return getTabIndex(focusDate);
+    } else if (selectedDate && isSameMonth(pageDate, selectedDate)) {
+      return getTabIndex(selectedDate);
+    } else if (isSameMonth(pageDate, new Date())) {
+      return getTabIndex(new Date());
+    }
+    return getDate(date) === 1 ? 0 : -1;
+  }, [focusDate, pageDate, selectedDate, date]);
   React.useEffect(() => {
     if (ref.current && focusDate && focusDate.getTime() === date.getTime()) {
       ref.current.focus();
     }
   }, [focusDate, date]);
+
   return (
     <li
       css={css`
@@ -114,16 +140,25 @@ const Day = ({ date }: any) => {
             css`
               color: red;
             `}
+          ${selectedDate &&
+            isSameDay(selectedDate, date) &&
+            css`
+              color: blue;
+            `}
 
           &[disabled] {
             cursor: not-allowed;
             color: grey;
           }
         `}
+        tabIndex={canTabTo}
         title={dateString}
         aria-label={dateString}
         onClick={handleClick}
         disabled={!sameMonth}
+        aria-selected={
+          selectedDate && isSameDay(date, selectedDate) ? 'true' : 'false'
+        }
         onFocus={handleFocus}
         onKeyDown={handleKeyDown}
       >

@@ -28,7 +28,8 @@ import {
   DECREMENT_FOCUS_MONTH,
   INCREMENT_FOCUS_YEAR,
   DECREMENT_FOCUS_YEAR,
-} from '../actions/types';
+  SET_SELECTED_DATE,
+} from '../types/actions';
 
 const rtlLocales = [
   'ae' /* Avestan */,
@@ -85,10 +86,16 @@ const ensureValidDate = (dateToTry: Date, fallbackDate: Date) => {
 };
 
 const reducer = (
-  state: { pageDate: Date; focusDate: Date | undefined },
+  state: { pageDate: Date; focusDate?: Date; selectedDate?: Date },
   { type, ...payload }: any
-): { pageDate: Date; focusDate: Date | undefined } => {
+) => {
   switch (type) {
+    case SET_SELECTED_DATE: {
+      return {
+        ...state,
+        selectedDate: payload.selectedDate,
+      };
+    }
     case DECREMENT_PAGE_MONTH: {
       return {
         ...state,
@@ -152,7 +159,7 @@ const reducer = (
     }
     case INCREMENT_FOCUS_DATE: {
       const newFocusDate = ensureValidDate(
-        addDays(state.focusDate as any, 1),
+        addDays(state.focusDate as any, payload.days || 1),
         state.focusDate as any
       );
       return {
@@ -163,7 +170,7 @@ const reducer = (
     }
     case DECREMENT_FOCUS_DATE: {
       const newFocusDate = ensureValidDate(
-        addDays(state.focusDate as any, -1),
+        addDays(state.focusDate as any, -(payload.days || 1)),
         state.focusDate as any
       );
       return {
@@ -223,10 +230,14 @@ const reducer = (
 };
 
 const Provider = ({ locale, children, date }: any) => {
-  const [{ pageDate, focusDate }, dispatch] = React.useReducer(reducer, {
-    pageDate: startOfMonth(date || new Date()),
-    focusDate: undefined,
-  });
+  const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
+    reducer,
+    {
+      pageDate: startOfMonth(date || new Date()),
+      focusDate: undefined,
+      selectedDate: date,
+    }
+  );
 
   const rtl = React.useMemo(() => {
     return !!rtlLocales.find(rtlLocale => {
@@ -244,15 +255,21 @@ const Provider = ({ locale, children, date }: any) => {
       <LocaleContext.Provider value={locale}>
         <RtlContext.Provider value={rtl}>
           <PageDateContext.Provider value={pageDate}>
-            <FocusDateContext.Provider value={focusDate}>
-              {children}
-            </FocusDateContext.Provider>
+            <SelectedDateContext.Provider value={selectedDate}>
+              <FocusDateContext.Provider value={focusDate}>
+                {children}
+              </FocusDateContext.Provider>
+            </SelectedDateContext.Provider>
           </PageDateContext.Provider>
         </RtlContext.Provider>
       </LocaleContext.Provider>
     </CalendarDispatchContext.Provider>
   );
 };
+
+export const SelectedDateContext = React.createContext<Date | undefined>(
+  undefined
+);
 
 export const CalendarContextProvider = React.memo(Provider);
 
@@ -278,4 +295,9 @@ export const useLocale = (): [string | string[], boolean] => {
 export const useFocusDate = () => {
   const focusDate = React.useContext(FocusDateContext);
   return focusDate;
+};
+
+export const useSelectedDate = () => {
+  const selectedDate = React.useContext(SelectedDateContext);
+  return selectedDate;
 };
