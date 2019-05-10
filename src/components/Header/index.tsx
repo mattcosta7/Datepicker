@@ -9,6 +9,14 @@ import {
 
 import { addMonths, addYears, getMonth } from 'date-fns';
 import Button from '../Button';
+import {
+  DECREMENT_PAGE_MONTH,
+  DECREMENT_PAGE_YEAR,
+  INCREMENT_PAGE_MONTH,
+  INCREMENT_PAGE_YEAR,
+  SET_PAGE_MONTH,
+  SET_PAGE_YEAR,
+} from '../../actions/types';
 
 const Header = () => {
   const dispatch = useCalendarDispatch();
@@ -27,7 +35,7 @@ const Header = () => {
 
   const handleMonthChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      dispatch({ type: 'SET_PAGE_MONTH', month: parseInt(e.target.value, 10) });
+      dispatch({ type: SET_PAGE_MONTH, month: parseInt(e.target.value, 10) });
     },
     []
   );
@@ -37,7 +45,7 @@ const Header = () => {
       console.log(e.target.value);
 
       dispatch({
-        type: 'SET_PAGE_YEAR',
+        type: SET_PAGE_YEAR,
         year: parseInt(e.target.value || '0', 10),
       });
     },
@@ -67,17 +75,17 @@ const Header = () => {
   ]);
 
   const decrementPageYear = React.useCallback(() => {
-    dispatch({ type: 'DECREMENT_PAGE_YEAR' });
-  }, []);
+    dispatch({ type: DECREMENT_PAGE_YEAR });
+  }, [dispatch]);
   const incrementPageYear = React.useCallback(() => {
-    dispatch({ type: 'INCREMENT_PAGE_YEAR' });
-  }, []);
+    dispatch({ type: INCREMENT_PAGE_YEAR });
+  }, [dispatch]);
   const decrementPageMonth = React.useCallback(() => {
-    dispatch({ type: 'DECREMENT_PAGE_MONTH' });
-  }, []);
+    dispatch({ type: DECREMENT_PAGE_MONTH });
+  }, [dispatch]);
   const incrementPageMonth = React.useCallback(() => {
-    dispatch({ type: 'INCREMENT_PAGE_MONTH' });
-  }, []);
+    dispatch({ type: INCREMENT_PAGE_MONTH });
+  }, [dispatch]);
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

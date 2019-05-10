@@ -1,12 +1,34 @@
 import * as React from 'react';
-import { startOfMonth, addMonths, addYears, setMonth, setYear } from 'date-fns';
+import {
+  startOfMonth,
+  addMonths,
+  addYears,
+  setMonth,
+  setYear,
+  addDays,
+} from 'date-fns';
 import {
   MIN_DATE,
   MAX_DATE,
   MIN_DATE_YEAR,
   MAX_DATE_YEAR,
 } from '../utils/date';
-import { addDays } from 'date-fns/esm';
+import {
+  DECREMENT_PAGE_MONTH,
+  DECREMENT_PAGE_YEAR,
+  INCREMENT_PAGE_MONTH,
+  INCREMENT_PAGE_YEAR,
+  SET_PAGE_MONTH,
+  SET_PAGE_YEAR,
+  SET_PAGE_DATE,
+  SET_FOCUS_DATE,
+  INCREMENT_FOCUS_DATE,
+  DECREMENT_FOCUS_DATE,
+  INCREMENT_FOCUS_MONTH,
+  DECREMENT_FOCUS_MONTH,
+  INCREMENT_FOCUS_YEAR,
+  DECREMENT_FOCUS_YEAR,
+} from '../actions/types';
 
 const rtlLocales = [
   'ae' /* Avestan */,
@@ -67,7 +89,7 @@ const reducer = (
   { type, ...payload }: any
 ): { pageDate: Date; focusDate: Date | undefined } => {
   switch (type) {
-    case 'DECREMENT_PAGE_MONTH': {
+    case DECREMENT_PAGE_MONTH: {
       return {
         ...state,
         pageDate: ensureValidDate(
@@ -76,25 +98,25 @@ const reducer = (
         ),
       };
     }
-    case 'DECREMENT_PAGE_YEAR': {
+    case DECREMENT_PAGE_YEAR: {
       return {
         ...state,
         pageDate: ensureValidDate(addYears(state.pageDate, -1), state.pageDate),
       };
     }
-    case 'INCREMENT_PAGE_MONTH': {
+    case INCREMENT_PAGE_MONTH: {
       return {
         ...state,
         pageDate: ensureValidDate(addMonths(state.pageDate, 1), state.pageDate),
       };
     }
-    case 'INCREMENT_PAGE_YEAR': {
+    case INCREMENT_PAGE_YEAR: {
       return {
         ...state,
         pageDate: ensureValidDate(addYears(state.pageDate, 1), state.pageDate),
       };
     }
-    case 'SET_PAGE_MONTH': {
+    case SET_PAGE_MONTH: {
       const { month } = payload;
       if (!month && month !== 0) return state;
       return {
@@ -105,7 +127,7 @@ const reducer = (
         ),
       };
     }
-    case 'SET_PAGE_YEAR': {
+    case SET_PAGE_YEAR: {
       const { year } = payload;
       if (!year && year !== 0) return state;
       return {
@@ -116,19 +138,19 @@ const reducer = (
         ),
       };
     }
-    case 'SET_PAGE_DATE': {
+    case SET_PAGE_DATE: {
       return {
         ...state,
         pageDate: ensureValidDate(payload.date, state.pageDate),
       };
     }
-    case 'SET_FOCUS_DATE': {
+    case SET_FOCUS_DATE: {
       return {
         ...state,
         focusDate: ensureValidDate(payload.focusDate, state.focusDate as any),
       };
     }
-    case 'INCREMENT_FOCUS_DATE': {
+    case INCREMENT_FOCUS_DATE: {
       const newFocusDate = ensureValidDate(
         addDays(state.focusDate as any, 1),
         state.focusDate as any
@@ -139,7 +161,7 @@ const reducer = (
         focusDate: newFocusDate,
       };
     }
-    case 'DECREMENT_FOCUS_DATE': {
+    case DECREMENT_FOCUS_DATE: {
       const newFocusDate = ensureValidDate(
         addDays(state.focusDate as any, -1),
         state.focusDate as any
@@ -150,7 +172,7 @@ const reducer = (
         focusDate: newFocusDate,
       };
     }
-    case 'INCREMENT_FOCUS_MONTH': {
+    case INCREMENT_FOCUS_MONTH: {
       const newFocusDate = ensureValidDate(
         addMonths(state.focusDate as any, 1),
         state.focusDate as any
@@ -161,7 +183,7 @@ const reducer = (
         focusDate: newFocusDate,
       };
     }
-    case 'DECREMENT_FOCUS_MONTH': {
+    case DECREMENT_FOCUS_MONTH: {
       const newFocusDate = ensureValidDate(
         addMonths(state.focusDate as any, -1),
         state.focusDate as any
@@ -172,7 +194,7 @@ const reducer = (
         focusDate: newFocusDate,
       };
     }
-    case 'INCREMENT_FOCUS_YEAR': {
+    case INCREMENT_FOCUS_YEAR: {
       const newFocusDate = ensureValidDate(
         addYears(state.focusDate as any, 1),
         state.focusDate as any
@@ -183,7 +205,7 @@ const reducer = (
         focusDate: newFocusDate,
       };
     }
-    case 'DECREMENT_FOCUS_YEAR': {
+    case DECREMENT_FOCUS_YEAR: {
       const newFocusDate = ensureValidDate(
         addYears(state.focusDate as any, -1),
         state.focusDate as any

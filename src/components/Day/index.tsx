@@ -8,7 +8,13 @@ import {
   useCalendarDispatch,
   useLocale,
 } from '../../context/Calendar';
-
+import {
+  SET_FOCUS_DATE,
+  INCREMENT_FOCUS_DATE,
+  DECREMENT_FOCUS_DATE,
+  DECREMENT_FOCUS_MONTH,
+  DECREMENT_FOCUS_YEAR,
+} from '../../actions/types';
 const Day = ({ date }: any) => {
   const ref = React.useRef<HTMLButtonElement>(null);
   const pageDate = usePageDate();
@@ -43,6 +49,41 @@ const Day = ({ date }: any) => {
     }).format(date);
   }, [locale, date]);
 
+  const handleFocus = React.useCallback(() => {
+    dispatch({ type: SET_FOCUS_DATE, focusDate: date });
+  }, [date, dispatch]);
+
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      switch (e.key) {
+        case 'ArrowLeft': {
+          dispatch({ type: DECREMENT_FOCUS_DATE });
+          break;
+        }
+        case 'ArrowRight': {
+          dispatch({ type: INCREMENT_FOCUS_DATE });
+          break;
+        }
+        case 'PageDown': {
+          dispatch({ type: DECREMENT_FOCUS_MONTH });
+          break;
+        }
+        case 'PageUp': {
+          dispatch({ type: DECREMENT_FOCUS_MONTH });
+          break;
+        }
+        case 'Home': {
+          dispatch({ type: DECREMENT_FOCUS_YEAR });
+          break;
+        }
+        case 'End': {
+          dispatch({ type: DECREMENT_FOCUS_YEAR });
+          break;
+        }
+      }
+    },
+    [dispatch]
+  );
   React.useEffect(() => {
     if (ref.current && focusDate && focusDate.getTime() === date.getTime()) {
       ref.current.focus();
@@ -83,39 +124,8 @@ const Day = ({ date }: any) => {
         aria-label={dateString}
         onClick={handleClick}
         disabled={!sameMonth}
-        onFocus={() => {
-          dispatch({ type: 'SET_FOCUS_DATE', focusDate: date });
-        }}
-        onKeyDown={e => {
-          console.log(e.key);
-
-          switch (e.key) {
-            case 'ArrowLeft': {
-              dispatch({ type: 'DECREMENT_FOCUS_DATE' });
-              break;
-            }
-            case 'ArrowRight': {
-              dispatch({ type: 'INCREMENT_FOCUS_DATE' });
-              break;
-            }
-            case 'PageDown': {
-              dispatch({ type: 'DECREMENT_FOCUS_MONTH' });
-              break;
-            }
-            case 'PageUp': {
-              dispatch({ type: 'DECREMENT_FOCUS_MONTH' });
-              break;
-            }
-            case 'Home': {
-              dispatch({ type: 'DECREMENT_FOCUS_YEAR' });
-              break;
-            }
-            case 'End': {
-              dispatch({ type: 'DECREMENT_FOCUS_YEAR' });
-              break;
-            }
-          }
-        }}
+        onFocus={handleFocus}
+        onKeyDown={handleKeyDown}
       >
         {formattedDay}
       </button>
