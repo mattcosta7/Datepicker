@@ -2,10 +2,19 @@
 import * as React from 'react';
 import { jsx, css } from '@emotion/core';
 import { isSameDay, isWeekend, isSameMonth } from 'date-fns';
-import CalendarContext from '../../context/Calendar';
+import {
+  usePageDate,
+  useFocusDate,
+  useCalendarDispatch,
+  useLocale,
+} from '../../context/Calendar';
 
 const Day = ({ date }: any) => {
-  const { locale, pageDate } = React.useContext(CalendarContext);
+  const ref = React.useRef<HTMLButtonElement>(null);
+  const pageDate = usePageDate();
+  const [locale] = useLocale();
+  const dispatch = useCalendarDispatch();
+  const focusDate = useFocusDate();
 
   const dateString = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
@@ -17,13 +26,16 @@ const Day = ({ date }: any) => {
   }, [date, locale]);
 
   const sameMonth = React.useMemo(() => isSameMonth(pageDate, date), [
-    pageDate,
-    date,
+    pageDate.getTime(),
+    date.getTime(),
   ]);
 
-  const handleClick = React.useCallback(() => {
-    sameMonth ? alert(dateString) : undefined;
-  }, [sameMonth, dateString]);
+  const handleClick = React.useCallback(
+    (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      console.log(date);
+    },
+    [date]
+  );
 
   const formattedDay = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
@@ -31,38 +43,83 @@ const Day = ({ date }: any) => {
     }).format(date);
   }, [locale, date]);
 
+  React.useEffect(() => {
+    if (ref.current && focusDate && focusDate.getTime() === date.getTime()) {
+      ref.current.focus();
+    }
+  }, [focusDate, date]);
   return (
-    <button
-      key={dateString}
-      title={dateString}
-      aria-label={dateString}
-      disabled={!sameMonth}
-      onClick={handleClick}
-      css={(_theme: any) => css`
-        appearance: none;
-        border: 0;
-        background: transparent;
-        cursor: pointer;
-        flex: 1 0 ${100 / 7}%;
-        text-align: center;
-
-        ${isWeekend(date) &&
-          css`
-            color: green;
-          `}
-        ${isSameDay(new Date(), date) &&
-          css`
-            color: red;
-          `}
-
-        &[disabled] {
-          cursor: not-allowed;
-          color: grey;
-        }
+    <li
+      css={css`
+        flex: 1 0 calc(100% / 7);
       `}
     >
-      {formattedDay}
-    </button>
+      <button
+        ref={ref}
+        css={(_theme: any) => css`
+          appearance: none;
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          flex: 1 0 ${100 / 7}%;
+          text-align: center;
+          height: 100%;
+          width: 100%;
+          ${isWeekend(date) &&
+            css`
+              color: green;
+            `}
+          ${isSameDay(new Date(), date) &&
+            css`
+              color: red;
+            `}
+
+          &[disabled] {
+            cursor: not-allowed;
+            color: grey;
+          }
+        `}
+        title={dateString}
+        aria-label={dateString}
+        onClick={handleClick}
+        disabled={!sameMonth}
+        onFocus={() => {
+          dispatch({ type: 'SET_FOCUS_DATE', focusDate: date });
+        }}
+        onKeyDown={e => {
+          console.log(e.key);
+
+          switch (e.key) {
+            case 'ArrowLeft': {
+              dispatch({ type: 'DECREMENT_FOCUS_DATE' });
+              break;
+            }
+            case 'ArrowRight': {
+              dispatch({ type: 'INCREMENT_FOCUS_DATE' });
+              break;
+            }
+            case 'PageDown': {
+              dispatch({ type: 'DECREMENT_FOCUS_MONTH' });
+              break;
+            }
+            case 'PageUp': {
+              dispatch({ type: 'DECREMENT_FOCUS_MONTH' });
+              break;
+            }
+            case 'Home': {
+              dispatch({ type: 'DECREMENT_FOCUS_YEAR' });
+              break;
+            }
+            case 'End': {
+              dispatch({ type: 'DECREMENT_FOCUS_YEAR' });
+              break;
+            }
+          }
+        }}
+      >
+        {formattedDay}
+      </button>
+    </li>
   );
 };
 

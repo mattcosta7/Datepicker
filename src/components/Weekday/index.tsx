@@ -4,14 +4,13 @@ import { jsx, css } from '@emotion/core';
 
 const Weekday = ({ dayNumber, children }: any) => {
   return (
-    <span
-      key={dayNumber}
+    <li
       css={(_theme: any) => css`
-        appearance: none;
-        border: 0;
         background: transparent;
         cursor: default;
         flex: 1 0 ${100 / 7}%;
+        height: 100%;
+        width: 100%;
         text-align: center;
 
         ${dayNumber === 0 ||
@@ -27,7 +26,7 @@ const Weekday = ({ dayNumber, children }: any) => {
       `}
     >
       {children}
-    </span>
+    </li>
   );
 };
 

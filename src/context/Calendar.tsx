@@ -6,6 +6,7 @@ import {
   MIN_DATE_YEAR,
   MAX_DATE_YEAR,
 } from '../utils/date';
+import { addDays } from 'date-fns/esm';
 
 const rtlLocales = [
   'ae' /* Avestan */,
@@ -29,94 +30,181 @@ const rtlLocales = [
   'yi' /* 'ייִדיש', Yiddish */,
 ];
 
-const CalendarContext = React.createContext({
-  locale: undefined,
-  pageDate: startOfMonth(new Date()),
-  decrementPageMonth: () => {},
-  incrementPageMonth: () => {},
-  decrementPageYear: () => {},
-  incrementPageYear: () => {},
-  setPageMonth: (_month: number) => {},
-  setPageYear: (_year: number) => {},
-  rtl: false,
-});
+export const PageDateContext = React.createContext(startOfMonth(new Date()));
+export const FocusDateContext = React.createContext<Date | undefined>(
+  undefined
+);
+export const LocaleContext = React.createContext(undefined);
+export const RtlContext = React.createContext(false);
+export const CalendarDispatchContext = React.createContext<React.Dispatch<
+  any
+> | void>(undefined);
 
-export default CalendarContext;
+PageDateContext.displayName = 'PageDateContext';
+LocaleContext.displayName = 'LocaleContext';
+RtlContext.displayName = 'RtlContext';
+CalendarDispatchContext.displayName = 'CalendarDispatchContext';
 
-export const CalendarContextProvider = ({ locale, children, date }: any) => {
-  const [pageDate, setPageDate] = React.useState(
-    startOfMonth(date || new Date())
-  );
-
-  const makeErrorFormatter = React.useCallback(
-    (locale?: string) =>
-      new Intl.DateTimeFormat(locale, {
-        era: 'short',
-        year: 'numeric',
-        month: 'long',
-      }).format,
-    [locale]
-  );
-
-  const handleSetPageDate = React.useCallback(
-    date => {
-      if (date.getTime() !== date.getTime()) {
-        const formatter = makeErrorFormatter(locale);
-        console.error(`
-        Attempted to set an invalid date, it may be because Javascript dates only support dates between ${formatter(
-          MIN_DATE
-        )} and ${formatter(MAX_DATE)}.
-    `);
-        return;
-      }
-
-      const year = date.getFullYear();
-      if (year > MAX_DATE_YEAR || year < MIN_DATE_YEAR) {
-        const formatter = makeErrorFormatter(locale);
-        console.error(`
-        Javascript dates only support dates between ${formatter(
-          MIN_DATE
-        )} and ${formatter(MAX_DATE)}.
+const ensureValidDate = (dateToTry: Date, fallbackDate: Date) => {
+  if (dateToTry.getTime() !== dateToTry.getTime()) {
+    console.error(`
+        Attempted to set an invalid date, it may be because Javascript dates only support dates with times between ${MIN_DATE} and ${MAX_DATE}.
       `);
-        return;
-      }
+    return fallbackDate;
+  }
+  const year = dateToTry.getFullYear();
+  if (year > MAX_DATE_YEAR || year < MIN_DATE_YEAR) {
+    console.error(`
+       Javascript dates only support dates between ${MAX_DATE_YEAR} ${MIN_DATE_YEAR}.
+     `);
+    return fallbackDate;
+  }
+  return dateToTry;
+};
 
-      setPageDate(date);
-    },
-    [setPageDate, locale]
-  );
+const reducer = (
+  state: { pageDate: Date; focusDate: Date | undefined },
+  { type, ...payload }: any
+): { pageDate: Date; focusDate: Date | undefined } => {
+  switch (type) {
+    case 'DECREMENT_PAGE_MONTH': {
+      return {
+        ...state,
+        pageDate: ensureValidDate(
+          addMonths(state.pageDate, -1),
+          state.pageDate
+        ),
+      };
+    }
+    case 'DECREMENT_PAGE_YEAR': {
+      return {
+        ...state,
+        pageDate: ensureValidDate(addYears(state.pageDate, -1), state.pageDate),
+      };
+    }
+    case 'INCREMENT_PAGE_MONTH': {
+      return {
+        ...state,
+        pageDate: ensureValidDate(addMonths(state.pageDate, 1), state.pageDate),
+      };
+    }
+    case 'INCREMENT_PAGE_YEAR': {
+      return {
+        ...state,
+        pageDate: ensureValidDate(addYears(state.pageDate, 1), state.pageDate),
+      };
+    }
+    case 'SET_PAGE_MONTH': {
+      const { month } = payload;
+      if (!month && month !== 0) return state;
+      return {
+        ...state,
+        pageDate: ensureValidDate(
+          setMonth(state.pageDate, month),
+          state.pageDate
+        ),
+      };
+    }
+    case 'SET_PAGE_YEAR': {
+      const { year } = payload;
+      if (!year && year !== 0) return state;
+      return {
+        ...state,
+        pageDate: ensureValidDate(
+          setYear(state.pageDate, year),
+          state.pageDate
+        ),
+      };
+    }
+    case 'SET_PAGE_DATE': {
+      return {
+        ...state,
+        pageDate: ensureValidDate(payload.date, state.pageDate),
+      };
+    }
+    case 'SET_FOCUS_DATE': {
+      return {
+        ...state,
+        focusDate: ensureValidDate(payload.focusDate, state.focusDate as any),
+      };
+    }
+    case 'INCREMENT_FOCUS_DATE': {
+      const newFocusDate = ensureValidDate(
+        addDays(state.focusDate as any, 1),
+        state.focusDate as any
+      );
+      return {
+        ...state,
+        pageDate: newFocusDate ? startOfMonth(newFocusDate) : state.pageDate,
+        focusDate: newFocusDate,
+      };
+    }
+    case 'DECREMENT_FOCUS_DATE': {
+      const newFocusDate = ensureValidDate(
+        addDays(state.focusDate as any, -1),
+        state.focusDate as any
+      );
+      return {
+        ...state,
+        pageDate: newFocusDate ? startOfMonth(newFocusDate) : state.pageDate,
+        focusDate: newFocusDate,
+      };
+    }
+    case 'INCREMENT_FOCUS_MONTH': {
+      const newFocusDate = ensureValidDate(
+        addMonths(state.focusDate as any, 1),
+        state.focusDate as any
+      );
+      return {
+        ...state,
+        pageDate: newFocusDate ? startOfMonth(newFocusDate) : state.pageDate,
+        focusDate: newFocusDate,
+      };
+    }
+    case 'DECREMENT_FOCUS_MONTH': {
+      const newFocusDate = ensureValidDate(
+        addMonths(state.focusDate as any, -1),
+        state.focusDate as any
+      );
+      return {
+        ...state,
+        pageDate: newFocusDate ? startOfMonth(newFocusDate) : state.pageDate,
+        focusDate: newFocusDate,
+      };
+    }
+    case 'INCREMENT_FOCUS_YEAR': {
+      const newFocusDate = ensureValidDate(
+        addYears(state.focusDate as any, 1),
+        state.focusDate as any
+      );
+      return {
+        ...state,
+        pageDate: newFocusDate ? startOfMonth(newFocusDate) : state.pageDate,
+        focusDate: newFocusDate,
+      };
+    }
+    case 'DECREMENT_FOCUS_YEAR': {
+      const newFocusDate = ensureValidDate(
+        addYears(state.focusDate as any, -1),
+        state.focusDate as any
+      );
+      return {
+        ...state,
+        pageDate: newFocusDate ? startOfMonth(newFocusDate) : state.pageDate,
+        focusDate: newFocusDate,
+      };
+    }
+    default: {
+      throw new Error('Invalid type');
+    }
+  }
+};
 
-  const decrementPageMonth = React.useCallback(() => {
-    handleSetPageDate(addMonths(pageDate, -1));
-  }, [pageDate, handleSetPageDate]);
-
-  const incrementPageMonth = React.useCallback(() => {
-    handleSetPageDate(addMonths(pageDate, 1));
-  }, [pageDate, handleSetPageDate]);
-
-  const decrementPageYear = React.useCallback(() => {
-    handleSetPageDate(addYears(pageDate, -1));
-  }, [pageDate, handleSetPageDate]);
-
-  const incrementPageYear = React.useCallback(() => {
-    handleSetPageDate(addYears(pageDate, 1));
-  }, [pageDate, handleSetPageDate]);
-
-  const setPageMonth = React.useCallback(
-    (month: number) => {
-      if (!month && month !== 0) return;
-      handleSetPageDate(setMonth(pageDate, month));
-    },
-    [pageDate, handleSetPageDate]
-  );
-
-  const setPageYear = React.useCallback(
-    (year: number) => {
-      if (!year && year !== 0) return;
-      handleSetPageDate(setYear(pageDate, year));
-    },
-    [pageDate, handleSetPageDate]
-  );
+const Provider = ({ locale, children, date }: any) => {
+  const [{ pageDate, focusDate }, dispatch] = React.useReducer(reducer, {
+    pageDate: startOfMonth(date || new Date()),
+    focusDate: undefined,
+  });
 
   const rtl = React.useMemo(() => {
     return !!rtlLocales.find(rtlLocale => {
@@ -129,34 +217,43 @@ export const CalendarContextProvider = ({ locale, children, date }: any) => {
     });
   }, [locale]);
 
-  const value = React.useMemo(
-    () => ({
-      locale,
-      pageDate,
-      decrementPageMonth,
-      incrementPageMonth,
-      decrementPageYear,
-      incrementPageYear,
-      setPageMonth,
-      setPageYear,
-      rtl,
-    }),
-    [
-      locale,
-      pageDate,
-      decrementPageMonth,
-      incrementPageMonth,
-      decrementPageYear,
-      incrementPageYear,
-      setPageMonth,
-      setPageYear,
-      rtl,
-    ]
-  );
-
   return (
-    <CalendarContext.Provider value={value}>
-      {children}
-    </CalendarContext.Provider>
+    <CalendarDispatchContext.Provider value={dispatch}>
+      <LocaleContext.Provider value={locale}>
+        <RtlContext.Provider value={rtl}>
+          <PageDateContext.Provider value={pageDate}>
+            <FocusDateContext.Provider value={focusDate}>
+              {children}
+            </FocusDateContext.Provider>
+          </PageDateContext.Provider>
+        </RtlContext.Provider>
+      </LocaleContext.Provider>
+    </CalendarDispatchContext.Provider>
   );
+};
+
+export const CalendarContextProvider = React.memo(Provider);
+
+export const useCalendarDispatch = () => {
+  const dispatch = React.useContext(CalendarDispatchContext);
+  if (!dispatch) throw new Error('Cannot use dispatch outside of a context');
+  return dispatch;
+};
+export const usePageDate = () => {
+  const pageDate = React.useContext(PageDateContext);
+  if (!pageDate) throw new Error('Cannot use dispatch outside of a context');
+  return pageDate;
+};
+export const useLocale = (): [string | string[], boolean] => {
+  const locale = React.useContext(LocaleContext);
+  const rtl = React.useContext(RtlContext);
+  if (typeof locale === 'undefined' || typeof rtl === 'undefined') {
+    throw new Error('Must be in a context');
+  }
+  return [locale, rtl];
+};
+
+export const useFocusDate = () => {
+  const focusDate = React.useContext(FocusDateContext);
+  return focusDate;
 };

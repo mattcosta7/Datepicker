@@ -1,14 +1,14 @@
 /** @jsx jsx */
 import * as React from 'react';
 import { jsx, css } from '@emotion/core';
-import CalendarContext from '../../context/Calendar';
+import { LocaleContext } from '../../context/Calendar';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   date: Date;
 }
 
 const Button = ({ date, ...props }: ButtonProps) => {
-  const { locale } = React.useContext(CalendarContext);
+  const locale = React.useContext(LocaleContext);
   const dateFormatter = React.useMemo(() => {
     try {
       return new Intl.DateTimeFormat(locale, {

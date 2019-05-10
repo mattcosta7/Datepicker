@@ -1,22 +1,19 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core';
 import * as React from 'react';
-import CalendarContext from '../../context/Calendar';
+import {
+  useCalendarDispatch,
+  usePageDate,
+  useLocale,
+} from '../../context/Calendar';
+
 import { addMonths, addYears, getMonth } from 'date-fns';
 import Button from '../Button';
 
 const Header = () => {
-  const {
-    locale,
-    decrementPageMonth,
-    incrementPageMonth,
-    pageDate,
-    decrementPageYear,
-    incrementPageYear,
-    setPageMonth,
-    setPageYear,
-    rtl,
-  } = React.useContext(CalendarContext);
+  const dispatch = useCalendarDispatch();
+  const pageDate = usePageDate();
+  const [locale, rtl] = useLocale();
 
   const months = React.useMemo(() => {
     const format = new Intl.DateTimeFormat(locale, { month: 'long' });
@@ -30,31 +27,57 @@ const Header = () => {
 
   const handleMonthChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setPageMonth(parseInt(e.target.value, 10));
+      dispatch({ type: 'SET_PAGE_MONTH', month: parseInt(e.target.value, 10) });
     },
-    [setPageMonth]
+    []
   );
 
   const handleYearChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       console.log(e.target.value);
 
-      setPageYear(parseInt(e.target.value || '0', 10));
+      dispatch({
+        type: 'SET_PAGE_YEAR',
+        year: parseInt(e.target.value || '0', 10),
+      });
     },
-    [setPageMonth]
+    []
   );
 
-  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [pageDate]);
+  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [
+    pageDate.getTime(),
+  ]);
 
-  const yearFormatter = React.useMemo(
-    () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format,
-    [locale]
+  const yearFormatted = React.useMemo(
+    () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(pageDate),
+    [locale, pageDate.getTime()]
   );
 
-  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [pageDate]);
-  const prevYear = React.useMemo(() => addYears(pageDate, -1), [pageDate]);
-  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [pageDate]);
-  const nextYear = React.useMemo(() => addYears(pageDate, 1), [pageDate]);
+  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [
+    pageDate.getTime(),
+  ]);
+  const prevYear = React.useMemo(() => addYears(pageDate, -1), [
+    pageDate.getTime(),
+  ]);
+  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [
+    pageDate.getTime(),
+  ]);
+  const nextYear = React.useMemo(() => addYears(pageDate, 1), [
+    pageDate.getTime(),
+  ]);
+
+  const decrementPageYear = React.useCallback(() => {
+    dispatch({ type: 'DECREMENT_PAGE_YEAR' });
+  }, []);
+  const incrementPageYear = React.useCallback(() => {
+    dispatch({ type: 'INCREMENT_PAGE_YEAR' });
+  }, []);
+  const decrementPageMonth = React.useCallback(() => {
+    dispatch({ type: 'DECREMENT_PAGE_MONTH' });
+  }, []);
+  const incrementPageMonth = React.useCallback(() => {
+    dispatch({ type: 'INCREMENT_PAGE_MONTH' });
+  }, []);
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -67,7 +90,7 @@ const Header = () => {
           break;
       }
     },
-    [pageDate, incrementPageYear, decrementPageYear]
+    [pageDate.getTime()]
   );
   return (
     <header
@@ -78,7 +101,11 @@ const Header = () => {
         padding: 1rem;
       `}
     >
-      <div>
+      <div
+        css={(_theme: any) => css`
+          order: 1;
+        `}
+      >
         <Button date={prevYear} onClick={decrementPageYear}>
           {'<<'}
         </Button>
@@ -87,8 +114,24 @@ const Header = () => {
           {'<'}
         </Button>
       </div>
+      <div
+        css={(_theme: any) => css`
+          order: 3;
+        `}
+      >
+        <Button date={nextMonth} onClick={incrementPageMonth}>
+          {'>'}
+        </Button>
 
-      <div>
+        <Button date={nextYear} onClick={incrementPageYear}>
+          {'>>'}
+        </Button>
+      </div>
+      <div
+        css={(_theme: any) => css`
+          order: 2;
+        `}
+      >
         <select value={currentMonthIndex} onChange={handleMonthChange}>
           {months.map((month, i) => (
             <option key={`${month}${i}`} value={i}>
@@ -107,10 +150,11 @@ const Header = () => {
               border: 0;
               background: transparent;
             `}
-            value={yearFormatter(pageDate)}
+            value={yearFormatted}
             onChange={handleYearChange}
             onKeyDown={handleKeyDown}
           />
+
           <div
             css={(_theme: any) => css`
               display: flex;
@@ -140,16 +184,6 @@ const Header = () => {
             </button>
           </div>
         </div>
-      </div>
-
-      <div>
-        <Button date={nextMonth} onClick={incrementPageMonth}>
-          {'>'}
-        </Button>
-
-        <Button date={nextYear} onClick={incrementPageYear}>
-          {'>>'}
-        </Button>
       </div>
     </header>
   );

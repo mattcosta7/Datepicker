@@ -2,20 +2,23 @@
 import { jsx, css } from '@emotion/core';
 import * as React from 'react';
 import { endOfMonth, getDaysInMonth, getDay, addDays } from 'date-fns';
-import CalendarContext from '../../context/Calendar';
+import { LocaleContext, RtlContext, usePageDate } from '../../context/Calendar';
 import Day from '../Day';
 import Weekday from '../Weekday';
 
-const containerCss = ({ rtl }: { rtl?: boolean }) => {
+const listContainerCss = ({ rtl }: { rtl?: boolean }) => {
   return css`
     display: flex;
     flex-wrap: wrap;
     direction: ${rtl ? 'rtl' : 'ltr'};
+    list-style: none;
   `;
 };
 
 const CalendarBody = () => {
-  const { locale, pageDate, rtl } = React.useContext(CalendarContext);
+  const locale = React.useContext(LocaleContext);
+  const rtl = React.useContext(RtlContext);
+  const pageDate = usePageDate();
 
   const weekDays = React.useMemo(() => {
     const arr = [];
@@ -34,11 +37,11 @@ const CalendarBody = () => {
         length: 6 - getDay(endOfMonth(pageDate)),
       }),
     ].map((_, i) => addDays(pageDate, i - getDay(pageDate)));
-  }, [pageDate]);
+  }, [pageDate.getTime()]);
 
   return (
-    <main>
-      <header css={props => containerCss({ rtl, ...props })}>
+    <div>
+      <ol css={(_theme: any) => listContainerCss({ rtl })}>
         {weekDays.map((v, i) => {
           return (
             <Weekday key={v} dayNumber={i}>
@@ -46,13 +49,16 @@ const CalendarBody = () => {
             </Weekday>
           );
         })}
-      </header>
-      <section css={props => containerCss({ rtl, ...props })}>
+      </ol>
+      <ol
+        css={(_theme: any) => listContainerCss({ rtl })}
+        start={-getDay(pageDate)}
+      >
         {daysInMonth.map(v => {
           return <Day key={v} date={v} />;
         })}
-      </section>
-    </main>
+      </ol>
+    </div>
   );
 };
 
