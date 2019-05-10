@@ -42,8 +42,6 @@ const Header = () => {
 
   const handleYearChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log(e.target.value);
-
       dispatch({
         type: SET_PAGE_YEAR,
         year: parseInt(e.target.value || '0', 10),
@@ -52,27 +50,17 @@ const Header = () => {
     []
   );
 
-  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [
-    pageDate.getTime(),
-  ]);
+  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [pageDate]);
 
   const yearFormatted = React.useMemo(
     () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(pageDate),
-    [locale, pageDate.getTime()]
+    [locale, pageDate]
   );
 
-  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [
-    pageDate.getTime(),
-  ]);
-  const prevYear = React.useMemo(() => addYears(pageDate, -1), [
-    pageDate.getTime(),
-  ]);
-  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [
-    pageDate.getTime(),
-  ]);
-  const nextYear = React.useMemo(() => addYears(pageDate, 1), [
-    pageDate.getTime(),
-  ]);
+  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [pageDate]);
+  const prevYear = React.useMemo(() => addYears(pageDate, -1), [pageDate]);
+  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [pageDate]);
+  const nextYear = React.useMemo(() => addYears(pageDate, 1), [pageDate]);
 
   const decrementPageYear = React.useCallback(() => {
     dispatch({ type: DECREMENT_PAGE_YEAR });
@@ -98,7 +86,7 @@ const Header = () => {
           break;
       }
     },
-    [pageDate.getTime()]
+    [pageDate]
   );
   return (
     <header

@@ -1,5 +1,5 @@
 {
-  "name": "dp",
+  "name": "@angkor/datepicker",
   "version": "0.1.0",
   "main": "dist/index.js",
   "umd:main": "dist/dp.umd.production.js",

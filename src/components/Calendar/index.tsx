@@ -3,15 +3,14 @@ import { ThemeProvider } from 'emotion-theming';
 import { CalendarContextProvider } from '../../context/Calendar';
 import CalendarBody from '../CalendarBody';
 import Header from '../Header';
-import defaultLocale from '../../utils/default-locale';
 
 export interface CalendarProps {
-  date?: Date;
+  date?: Date | string;
   weekDays?: string[];
   weekStart?: number;
   locale?: string | string[];
   theme?: any;
-  onChange?: () => {};
+  onChange?: (e: any) => void;
   style?: {
     day: React.CSSProperties;
     weekday: React.CSSProperties;
@@ -19,39 +18,36 @@ export interface CalendarProps {
     header: React.CSSProperties;
     headerButtons: React.CSSProperties;
   };
+  showWeekNumbers?: boolean;
+  parseDate?: (dateString: string | Date) => Date;
+  formatDate?: (date: Date) => string;
 }
 
 const Calendar = ({
   date,
-  locale = defaultLocale,
-  theme,
+  locale,
   onChange,
+  showWeekNumbers,
+  parseDate,
 }: CalendarProps) => {
-  const innerLocale = React.useMemo(() => {
-    return locale ? Intl.getCanonicalLocales(locale) : defaultLocale;
-  }, [locale]);
-
-  const innerTheme = React.useMemo(
-    () =>
-      theme || {
-        colors: {
-          primary: 'red',
-          secondary: 'blue',
-        },
-      },
-    []
-  );
+  const parsedDate = React.useMemo(() => {
+    if (!date) return undefined;
+    if (parseDate) {
+      return parseDate(date);
+    }
+    return date instanceof Date ? date : new Date(date);
+  }, [parseDate, date]);
 
   return (
-    <ThemeProvider theme={innerTheme}>
+    <ThemeProvider theme={{}}>
       <CalendarContextProvider
-        locale={innerLocale}
-        date={date}
+        locale={locale}
+        date={parsedDate}
         onChange={onChange}
       >
         <div>
           <Header />
-          <CalendarBody />
+          <CalendarBody showWeekNumbers={showWeekNumbers} />
         </div>
       </CalendarContextProvider>
     </ThemeProvider>

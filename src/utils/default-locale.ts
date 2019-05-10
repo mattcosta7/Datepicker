@@ -3,10 +3,10 @@ const defaultLocale = () => {
     return (
       navigator.language ||
       (navigator as any).browserLanguage ||
-      (navigator.languages || ['en'])[0]
+      (navigator.languages || ['en'])
     );
   } catch {
-    return 'en';
+    return ['en'];
   }
 };
 

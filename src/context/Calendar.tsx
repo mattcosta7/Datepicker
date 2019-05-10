@@ -30,7 +30,7 @@ import {
   DECREMENT_FOCUS_YEAR,
   SET_SELECTED_DATE,
 } from '../types/actions';
-
+import defaultLocale from '../utils/default-locale';
 const rtlLocales = [
   'ae' /* Avestan */,
   'ar' /* 'العربية', Arabic */,
@@ -57,7 +57,9 @@ export const PageDateContext = React.createContext(startOfMonth(new Date()));
 export const FocusDateContext = React.createContext<Date | undefined>(
   undefined
 );
-export const LocaleContext = React.createContext(undefined);
+export const LocaleContext = React.createContext<string[] | undefined>(
+  undefined
+);
 export const RtlContext = React.createContext(false);
 export const CalendarDispatchContext = React.createContext<React.Dispatch<
   any
@@ -93,6 +95,7 @@ const reducer = (
     case SET_SELECTED_DATE: {
       return {
         ...state,
+        pageDate: startOfMonth(payload.selectedDate),
         selectedDate: payload.selectedDate,
       };
     }
@@ -229,7 +232,7 @@ const reducer = (
   }
 };
 
-const Provider = ({ locale, children, date }: any) => {
+const Provider = ({ locale, children, date, onChange }: any) => {
   const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
     reducer,
     {
@@ -239,25 +242,36 @@ const Provider = ({ locale, children, date }: any) => {
     }
   );
 
+  const innerLocale = React.useMemo(() => {
+    return Intl.getCanonicalLocales(locale || defaultLocale);
+  }, [locale]);
+
   const rtl = React.useMemo(() => {
     return !!rtlLocales.find(rtlLocale => {
-      return !!locale.find(
+      return !!innerLocale.find(
         (l: string) =>
           l === rtlLocale ||
           l.startsWith(rtlLocale) ||
           rtlLocale.split('-')[0] === l.split('-')[0]
       );
     });
-  }, [locale]);
+  }, [innerLocale]);
 
+  React.useEffect(() => {
+    if (date !== selectedDate) {
+      dispatch({ type: SET_SELECTED_DATE, selectedDate: date });
+    }
+  }, [date, selectedDate]);
   return (
     <CalendarDispatchContext.Provider value={dispatch}>
-      <LocaleContext.Provider value={locale}>
+      <LocaleContext.Provider value={innerLocale}>
         <RtlContext.Provider value={rtl}>
           <PageDateContext.Provider value={pageDate}>
             <SelectedDateContext.Provider value={selectedDate}>
               <FocusDateContext.Provider value={focusDate}>
-                {children}
+                <SelectedDateOnChangeContext.Provider value={onChange}>
+                  {children}
+                </SelectedDateOnChangeContext.Provider>
               </FocusDateContext.Provider>
             </SelectedDateContext.Provider>
           </PageDateContext.Provider>
@@ -270,6 +284,9 @@ const Provider = ({ locale, children, date }: any) => {
 export const SelectedDateContext = React.createContext<Date | undefined>(
   undefined
 );
+export const SelectedDateOnChangeContext = React.createContext<
+  (({ value }: { value: Date }) => void) | undefined
+>(undefined);
 
 export const CalendarContextProvider = React.memo(Provider);
 
@@ -300,4 +317,8 @@ export const useFocusDate = () => {
 export const useSelectedDate = () => {
   const selectedDate = React.useContext(SelectedDateContext);
   return selectedDate;
+};
+export const useOnChange = () => {
+  const onChange = React.useContext(SelectedDateOnChangeContext);
+  return onChange;
 };

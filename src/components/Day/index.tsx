@@ -8,6 +8,7 @@ import {
   useCalendarDispatch,
   useLocale,
   useSelectedDate,
+  useOnChange,
 } from '../../context/Calendar';
 import {
   SET_FOCUS_DATE,
@@ -18,12 +19,13 @@ import {
   SET_SELECTED_DATE,
 } from '../../types/actions';
 const Day = ({ date }: any) => {
-  const ref = React.useRef<HTMLButtonElement>(null);
+  const ref = React.useRef<HTMLAnchorElement>(null);
   const pageDate = usePageDate();
-  const [locale] = useLocale();
+  const [locale, rtl] = useLocale();
   const dispatch = useCalendarDispatch();
   const focusDate = useFocusDate();
   const selectedDate = useSelectedDate();
+  const onChange = useOnChange();
 
   const dateString = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
@@ -35,13 +37,16 @@ const Day = ({ date }: any) => {
   }, [date, locale]);
 
   const sameMonth = React.useMemo(() => isSameMonth(pageDate, date), [
-    pageDate.getTime(),
-    date.getTime(),
+    pageDate,
+    date,
   ]);
 
   const handleClick = React.useCallback(
-    (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    (_e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       dispatch({ type: SET_SELECTED_DATE, selectedDate: date });
+      if (onChange) {
+        onChange({ value: date });
+      }
     },
     [date]
   );
@@ -57,7 +62,7 @@ const Day = ({ date }: any) => {
   }, [date, dispatch]);
 
   const handleKeyDown = React.useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    (e: React.KeyboardEvent<HTMLAnchorElement>) => {
       switch (e.key) {
         case 'ArrowUp': {
           dispatch({ type: DECREMENT_FOCUS_DATE, days: 7 });
@@ -68,11 +73,19 @@ const Day = ({ date }: any) => {
           break;
         }
         case 'ArrowLeft': {
-          dispatch({ type: DECREMENT_FOCUS_DATE });
+          if (rtl) {
+            dispatch({ type: INCREMENT_FOCUS_DATE });
+          } else {
+            dispatch({ type: DECREMENT_FOCUS_DATE });
+          }
           break;
         }
         case 'ArrowRight': {
-          dispatch({ type: INCREMENT_FOCUS_DATE });
+          if (rtl) {
+            dispatch({ type: DECREMENT_FOCUS_DATE });
+          } else {
+            dispatch({ type: INCREMENT_FOCUS_DATE });
+          }
           break;
         }
         case 'PageDown': {
@@ -91,14 +104,29 @@ const Day = ({ date }: any) => {
           dispatch({ type: DECREMENT_FOCUS_YEAR });
           break;
         }
+        case 'Enter': {
+          dispatch({ type: SET_SELECTED_DATE, selectedDate: date });
+          if (onChange) {
+            onChange({ value: date });
+          }
+          break;
+        }
+        case ' ': {
+          dispatch({ type: SET_SELECTED_DATE, selectedDate: date });
+          if (onChange) {
+            onChange({ value: date });
+          }
+          break;
+        }
       }
     },
-    [dispatch]
+    [dispatch, rtl]
   );
 
-  const getTabIndex = React.useCallback(d => (isSameDay(date, d) ? 0 : -1), [
-    date,
-  ]);
+  const getTabIndex = React.useCallback(
+    d => (isSameDay(date, d) && isSameMonth(pageDate, d) ? 0 : -1),
+    [date]
+  );
   const canTabTo = React.useMemo(() => {
     if (focusDate && isSameMonth(pageDate, focusDate)) {
       return getTabIndex(focusDate);
@@ -109,29 +137,34 @@ const Day = ({ date }: any) => {
     }
     return getDate(date) === 1 ? 0 : -1;
   }, [focusDate, pageDate, selectedDate, date]);
+
+  const ariaSelected = React.useMemo(() => {
+    return selectedDate && isSameDay(date, selectedDate) ? 'true' : 'false';
+  }, [selectedDate, date]);
+
   React.useEffect(() => {
-    if (ref.current && focusDate && focusDate.getTime() === date.getTime()) {
+    if (
+      ref.current &&
+      focusDate &&
+      focusDate.getTime() === date.getTime() &&
+      sameMonth
+    ) {
       ref.current.focus();
     }
-  }, [focusDate, date]);
+  }, [focusDate, date, sameMonth]);
 
+  const Component = !sameMonth ? 'span' : 'a';
   return (
-    <li
-      css={css`
-        flex: 1 0 calc(100% / 7);
-      `}
-    >
-      <button
-        ref={ref}
-        css={(_theme: any) => css`
-          appearance: none;
+    <Component
+      ref={ref}
+      css={(_theme: any) => css`
           border: 0;
-          background: transparent;
           cursor: pointer;
+          display: block;
           flex: 1 0 ${100 / 7}%;
           text-align: center;
           height: 100%;
-          width: 100%;
+
           ${isWeekend(date) &&
             css`
               color: green;
@@ -146,25 +179,28 @@ const Day = ({ date }: any) => {
               color: blue;
             `}
 
-          &[disabled] {
-            cursor: not-allowed;
-            color: grey;
-          }
+          ${!sameMonth &&
+            css`
+              cursor: not-allowed;
+              color: grey;
+
+              &:focus {
+                appearance: none;
+                outline: 0;
+              }
+            `}
         `}
-        tabIndex={canTabTo}
-        title={dateString}
-        aria-label={dateString}
-        onClick={handleClick}
-        disabled={!sameMonth}
-        aria-selected={
-          selectedDate && isSameDay(date, selectedDate) ? 'true' : 'false'
-        }
-        onFocus={handleFocus}
-        onKeyDown={handleKeyDown}
-      >
-        {formattedDay}
-      </button>
-    </li>
+      id={dateString}
+      tabIndex={canTabTo}
+      title={dateString}
+      aria-label={dateString}
+      onClick={sameMonth ? handleClick : undefined}
+      aria-selected={ariaSelected}
+      onFocus={handleFocus}
+      onKeyDown={handleKeyDown}
+    >
+      {formattedDay}
+    </Component>
   );
 };
 
