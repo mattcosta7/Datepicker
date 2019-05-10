@@ -45,13 +45,45 @@ const Calendar = ({
         date={parsedDate}
         onChange={onChange}
       >
-        <div>
-          <Header />
-          <CalendarBody showWeekNumbers={showWeekNumbers} />
-        </div>
+        <ErrorBoundary date={parsedDate}>
+          <div>
+            <Header />
+            <CalendarBody showWeekNumbers={showWeekNumbers} />
+          </div>
+        </ErrorBoundary>
       </CalendarContextProvider>
     </ThemeProvider>
   );
 };
+
+class ErrorBoundary extends React.PureComponent<any, any> {
+  state = {
+    hasError: undefined,
+  };
+
+  static getDerivedStateFromError() {
+    return {
+      hasError: true,
+    };
+  }
+
+  componentDidCatch(error: any, info: any) {
+    console.log({ error, info });
+  }
+
+  componentDidUpdate(lastProps: any) {
+    if (this.state.hasError && lastProps.date !== this.props.date) {
+      this.setState({
+        hasError: undefined,
+      });
+    }
+  }
+
+  render() {
+    const { hasError } = this.state;
+    const { children } = this.props;
+    return <>{hasError ? 'An invalid date has been passed in' : children}</>;
+  }
+}
 
 export default React.memo(Calendar);

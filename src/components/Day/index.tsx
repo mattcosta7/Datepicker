@@ -17,7 +17,7 @@ import {
   DECREMENT_FOCUS_MONTH,
   DECREMENT_FOCUS_YEAR,
   SET_SELECTED_DATE,
-} from '../../types/actions';
+} from '../../context/Calendar/actions';
 const Day = ({ date }: any) => {
   const ref = React.useRef<HTMLAnchorElement>(null);
   const pageDate = usePageDate();

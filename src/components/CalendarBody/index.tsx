@@ -68,8 +68,14 @@ const CalendarBody = ({ showWeekNumbers }: any) => {
           const weekNumber = new Intl.NumberFormat(locale).format(
             getWeek(daysInWeek[0])
           );
+          const formatter = new Intl.DateTimeFormat(locale).format;
+          const day0 = formatter(daysInWeek[0]);
+          const day6 = formatter(daysInWeek[6]);
           return (
-            <tr key={weekNumber}>
+            <tr
+              key={weekNumber}
+              aria-label={rtl ? `${day6} - ${day0}` : `${day0} - ${day6}`}
+            >
               {showWeekNumbers && <td>{weekNumber}</td>}
               {daysInWeek.map(v => {
                 return (
