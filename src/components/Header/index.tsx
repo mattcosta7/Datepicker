@@ -7,7 +7,7 @@ import {
   useLocale,
 } from '../../context/Calendar';
 
-import { addMonths, addYears, getMonth } from 'date-fns';
+import { addMonths, addYears, getMonth } from 'date-fns/esm';
 import Button from '../Button';
 import {
   DECREMENT_PAGE_MONTH,
@@ -57,10 +57,29 @@ const Header = () => {
     [locale, pageDate]
   );
 
-  const prevMonth = React.useMemo(() => addMonths(pageDate, -1), [pageDate]);
-  const prevYear = React.useMemo(() => addYears(pageDate, -1), [pageDate]);
-  const nextMonth = React.useMemo(() => addMonths(pageDate, 1), [pageDate]);
-  const nextYear = React.useMemo(() => addYears(pageDate, 1), [pageDate]);
+  const dateFormatter = React.useMemo(() => {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      year: 'numeric',
+    }).format;
+  }, [locale]);
+
+  const prevMonth = React.useMemo(
+    () => dateFormatter(addMonths(pageDate, -1)),
+    [pageDate, dateFormatter]
+  );
+  const prevYear = React.useMemo(() => dateFormatter(addYears(pageDate, -1)), [
+    pageDate,
+    dateFormatter,
+  ]);
+  const nextMonth = React.useMemo(() => dateFormatter(addMonths(pageDate, 1)), [
+    pageDate,
+    dateFormatter,
+  ]);
+  const nextYear = React.useMemo(() => dateFormatter(addYears(pageDate, 1)), [
+    pageDate,
+    dateFormatter,
+  ]);
 
   const decrementPageYear = React.useCallback(() => {
     dispatch({ type: DECREMENT_PAGE_YEAR });
@@ -86,8 +105,9 @@ const Header = () => {
           break;
       }
     },
-    [pageDate]
+    [pageDate, incrementPageYear, decrementPageYear]
   );
+
   return (
     <header
       css={(_theme: any) => css`
@@ -102,11 +122,19 @@ const Header = () => {
           order: 1;
         `}
       >
-        <Button date={prevYear} onClick={decrementPageYear}>
+        <Button
+          aria-label={prevYear}
+          title={prevYear}
+          onClick={decrementPageYear}
+        >
           {'<<'}
         </Button>
 
-        <Button date={prevMonth} onClick={decrementPageMonth}>
+        <Button
+          aria-label={prevMonth}
+          title={prevMonth}
+          onClick={decrementPageMonth}
+        >
           {'<'}
         </Button>
       </div>
@@ -115,11 +143,19 @@ const Header = () => {
           order: 3;
         `}
       >
-        <Button date={nextMonth} onClick={incrementPageMonth}>
+        <Button
+          aria-label={nextMonth}
+          title={nextMonth}
+          onClick={incrementPageMonth}
+        >
           {'>'}
         </Button>
 
-        <Button date={nextYear} onClick={incrementPageYear}>
+        <Button
+          aria-label={nextYear}
+          title={nextYear}
+          onClick={incrementPageYear}
+        >
           {'>>'}
         </Button>
       </div>

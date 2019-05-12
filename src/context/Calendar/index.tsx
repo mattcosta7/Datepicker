@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { startOfMonth } from 'date-fns';
+import { startOfMonth } from 'date-fns/esm';
 import { SET_SELECTED_DATE } from './actions';
 import defaultLocale from '../../utils/default-locale';
 import rtlLocales from './rtl-locales';
 import reducer from './reducer';
+import { isValid } from 'date-fns/esm';
 
 export const PageDateContext = React.createContext(startOfMonth(new Date()));
 PageDateContext.displayName = 'PageDateContext';
@@ -30,67 +31,15 @@ export const SelectedDateContext = React.createContext<Date | undefined>(
   undefined
 );
 SelectedDateContext.displayName = 'SelectedDateContext';
+export const ShowWeekNumberContext = React.createContext<boolean | undefined>(
+  false
+);
+ShowWeekNumberContext.displayName = 'ShowWeekNumberContext';
 
 export const SelectedDateOnChangeContext = React.createContext<
   (({ value }: { value: Date }) => void) | undefined
 >(undefined);
 SelectedDateOnChangeContext.displayName = 'SelectedDateOnChangeContext';
-
-interface ProviderProps {
-  locale?: string | string[];
-  children?: React.ReactNode;
-  date?: Date;
-  onChange?: (e: any) => void;
-}
-
-const Provider = ({ locale, children, date, onChange }: ProviderProps) => {
-  const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
-    reducer,
-    {
-      pageDate: startOfMonth(date || new Date()),
-      focusDate: undefined,
-      selectedDate: date,
-    }
-  );
-
-  const innerLocale = React.useMemo(() => {
-    return Intl.getCanonicalLocales(locale || defaultLocale);
-  }, [locale]);
-
-  const isRtl = React.useMemo(() => {
-    return !!innerLocale.find((locale: string) => {
-      return (
-        rtlLocales.hasOwnProperty(locale) ||
-        rtlLocales.hasOwnProperty(locale.split('-')[0])
-      );
-    });
-  }, [innerLocale]);
-
-  React.useEffect(() => {
-    if (date !== selectedDate) {
-      dispatch({ type: SET_SELECTED_DATE, selectedDate: date });
-    }
-  }, [date, selectedDate]);
-  return (
-    <CalendarDispatchContext.Provider value={dispatch}>
-      <LocaleContext.Provider value={innerLocale}>
-        <RtlContext.Provider value={isRtl}>
-          <PageDateContext.Provider value={pageDate}>
-            <SelectedDateContext.Provider value={selectedDate}>
-              <FocusDateContext.Provider value={focusDate}>
-                <SelectedDateOnChangeContext.Provider value={onChange}>
-                  {children}
-                </SelectedDateOnChangeContext.Provider>
-              </FocusDateContext.Provider>
-            </SelectedDateContext.Provider>
-          </PageDateContext.Provider>
-        </RtlContext.Provider>
-      </LocaleContext.Provider>
-    </CalendarDispatchContext.Provider>
-  );
-};
-
-export const CalendarContextProvider = React.memo(Provider);
 
 export const useCalendarDispatch = () => {
   const dispatch = React.useContext(CalendarDispatchContext);
@@ -116,6 +65,11 @@ export const useFocusDate = () => {
   return focusDate;
 };
 
+export const useShowWeekNumbers = () => {
+  const showWeekNumbers = React.useContext(ShowWeekNumberContext);
+  return showWeekNumbers;
+};
+
 export const useSelectedDate = () => {
   const selectedDate = React.useContext(SelectedDateContext);
   return selectedDate;
@@ -124,3 +78,82 @@ export const useOnChange = () => {
   const onChange = React.useContext(SelectedDateOnChangeContext);
   return onChange;
 };
+
+export const useWeekdays = () => {
+  const [locale] = useLocale();
+  const weekDays = React.useMemo(() => {
+    const arr: string[] = [];
+    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    for (var day = 4; day <= 10; day++) {
+      arr.push(formatter.format(new Date(1970, 0, day)));
+    }
+    return arr;
+  }, [locale]);
+  return weekDays;
+};
+
+interface ProviderProps {
+  locale?: string | string[];
+  children?: React.ReactNode;
+  showWeekNumbers?: boolean;
+  date?: Date;
+  onChange?: (e: any) => void;
+}
+
+const Provider = ({
+  locale,
+  children,
+  date,
+  onChange,
+  showWeekNumbers,
+}: ProviderProps) => {
+  const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
+    reducer,
+    {
+      pageDate: startOfMonth(date || new Date()),
+      focusDate: undefined,
+      selectedDate: date,
+    }
+  );
+
+  const innerLocale = React.useMemo(() => {
+    return Intl.getCanonicalLocales(locale || defaultLocale);
+  }, [locale]);
+
+  const isRtl = React.useMemo(() => {
+    return !!innerLocale.find((locale: string) => {
+      return (
+        rtlLocales.hasOwnProperty(locale) ||
+        rtlLocales.hasOwnProperty(locale.split('-')[0])
+      );
+    });
+  }, [innerLocale]);
+
+  React.useEffect(() => {
+    if (date !== selectedDate && isValid(date) && date) {
+      dispatch({ type: SET_SELECTED_DATE, date });
+    }
+  }, [date, selectedDate]);
+
+  return (
+    <CalendarDispatchContext.Provider value={dispatch}>
+      <LocaleContext.Provider value={innerLocale}>
+        <RtlContext.Provider value={isRtl}>
+          <ShowWeekNumberContext.Provider value={showWeekNumbers}>
+            <PageDateContext.Provider value={pageDate}>
+              <SelectedDateContext.Provider value={selectedDate}>
+                <FocusDateContext.Provider value={focusDate}>
+                  <SelectedDateOnChangeContext.Provider value={onChange}>
+                    {children}
+                  </SelectedDateOnChangeContext.Provider>
+                </FocusDateContext.Provider>
+              </SelectedDateContext.Provider>
+            </PageDateContext.Provider>
+          </ShowWeekNumberContext.Provider>
+        </RtlContext.Provider>
+      </LocaleContext.Provider>
+    </CalendarDispatchContext.Provider>
+  );
+};
+
+export const CalendarContextProvider = React.memo(Provider);

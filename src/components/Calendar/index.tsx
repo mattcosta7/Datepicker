@@ -43,12 +43,13 @@ const Calendar = ({
       <CalendarContextProvider
         locale={locale}
         date={parsedDate}
+        showWeekNumbers={showWeekNumbers}
         onChange={onChange}
       >
         <ErrorBoundary date={parsedDate}>
           <div>
             <Header />
-            <CalendarBody showWeekNumbers={showWeekNumbers} />
+            <CalendarBody />
           </div>
         </ErrorBoundary>
       </CalendarContextProvider>
