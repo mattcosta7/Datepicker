@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core';
 import * as React from 'react';
-import { useFocusDate, useLocale } from '../../context/Calendar';
+import { useFocusDate, useLocale } from '../../hooks';
 import Weekdays from '../Weekdays';
 import CalendarDays from '../CalendarDays';
 
@@ -25,6 +25,7 @@ const CalendarBody = () => {
     `,
     [rtl]
   );
+
   return (
     <table css={style} aria-activedescendant={activeDescendantId}>
       <thead>

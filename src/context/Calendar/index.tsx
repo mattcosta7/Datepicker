@@ -40,58 +40,6 @@ export const SelectedDateOnChangeContext = React.createContext<
   (({ value }: { value: Date }) => void) | undefined
 >(undefined);
 SelectedDateOnChangeContext.displayName = 'SelectedDateOnChangeContext';
-
-export const useCalendarDispatch = () => {
-  const dispatch = React.useContext(CalendarDispatchContext);
-  if (!dispatch) throw new Error('Cannot use dispatch outside of a context');
-  return dispatch;
-};
-export const usePageDate = () => {
-  const pageDate = React.useContext(PageDateContext);
-  if (!pageDate) throw new Error('Cannot use dispatch outside of a context');
-  return pageDate;
-};
-export const useLocale = (): [string | string[], boolean] => {
-  const locale = React.useContext(LocaleContext);
-  const rtl = React.useContext(RtlContext);
-  if (typeof locale === 'undefined' || typeof rtl === 'undefined') {
-    throw new Error('Must be in a context');
-  }
-  return [locale, rtl];
-};
-
-export const useFocusDate = () => {
-  const focusDate = React.useContext(FocusDateContext);
-  return focusDate;
-};
-
-export const useShowWeekNumbers = () => {
-  const showWeekNumbers = React.useContext(ShowWeekNumberContext);
-  return showWeekNumbers;
-};
-
-export const useSelectedDate = () => {
-  const selectedDate = React.useContext(SelectedDateContext);
-  return selectedDate;
-};
-export const useOnChange = () => {
-  const onChange = React.useContext(SelectedDateOnChangeContext);
-  return onChange;
-};
-
-export const useWeekdays = () => {
-  const [locale] = useLocale();
-  const weekDays = React.useMemo(() => {
-    const arr: string[] = [];
-    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    for (var day = 4; day <= 10; day++) {
-      arr.push(formatter.format(new Date(1970, 0, day)));
-    }
-    return arr;
-  }, [locale]);
-  return weekDays;
-};
-
 interface ProviderProps {
   locale?: string | string[];
   children?: React.ReactNode;

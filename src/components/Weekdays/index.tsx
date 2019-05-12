@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useWeekdays, useShowWeekNumbers } from '../../context/Calendar';
+import { useWeekdays, useShowWeekNumbers } from '../../hooks';
 import Weekday from '../Weekday';
 
 const Weekdays = () => {

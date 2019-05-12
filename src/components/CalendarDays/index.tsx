@@ -1,21 +1,14 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import * as React from 'react';
+import { getWeek } from 'date-fns/esm';
 import {
-  endOfMonth,
-  getDaysInMonth,
-  getDay,
-  addDays,
-  getWeek,
-} from 'date-fns/esm';
-import {
-  usePageDate,
   useLocale,
   useCalendarDispatch,
   useShowWeekNumbers,
-} from '../../context/Calendar';
+  useCalendarDaysByWeek,
+} from '../../hooks';
 import Day from '../Day';
-import { chunk } from '../../utils/array';
 import {
   SET_FOCUS_DATE,
   INCREMENT_FOCUS_DATE,
@@ -29,20 +22,7 @@ const CalendarDays = () => {
   const showWeekNumbers = useShowWeekNumbers();
   const dispatch = useCalendarDispatch();
   const [locale, rtl] = useLocale();
-  const pageDate = usePageDate();
-
-  const weeks = React.useMemo(() => {
-    return chunk(
-      [
-        ...Array.from({ length: getDay(pageDate) }),
-        ...Array.from({ length: getDaysInMonth(pageDate) }),
-        ...Array.from({
-          length: 6 - getDay(endOfMonth(pageDate)),
-        }),
-      ].map((_, i) => addDays(pageDate, i - getDay(pageDate))),
-      7
-    );
-  }, [pageDate]);
+  const weeks = useCalendarDaysByWeek();
 
   const formatter = new Intl.DateTimeFormat(locale).format;
 

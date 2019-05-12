@@ -2,11 +2,7 @@
 import * as React from 'react';
 import { jsx, css } from '@emotion/core';
 import { isSameDay, isWeekend, isSameMonth, getDate } from 'date-fns/esm';
-import {
-  usePageDate,
-  useFocusDate,
-  useSelectedDate,
-} from '../../context/Calendar';
+import { usePageDate, useFocusDate, useSelectedDate } from '../../hooks';
 
 const Day = ({
   date,
