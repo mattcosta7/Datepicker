@@ -5,16 +5,19 @@ import { Calendar } from '../src';
 import locales from './locales';
 
 const App = () => {
-  const [{ locale, date, showWeekNumbers }, setState] = React.useState<any>({});
+  const [
+    { locale, currentDate, inputDate = '', showWeekNumbers },
+    setState,
+  ] = React.useState<any>({});
   const onBlur = e => {
     if (e.target instanceof HTMLInputElement) {
-      const v = {
-        [e.target.name]: e.target.value,
-      };
+      const { value } = e.target;
+      console.log(value);
 
       setState(s => ({
         ...s,
-        ...v,
+        currentDate: value,
+        inputDate: value,
       }));
     }
   };
@@ -23,8 +26,15 @@ const App = () => {
     <div>
       <input
         name="date"
-        defaultValue={date}
+        value={inputDate.toLocaleString()}
         onBlur={onBlur}
+        onChange={e => {
+          const { value } = e.target;
+          setState(s => ({
+            ...s,
+            inputDate: value,
+          }));
+        }}
         onKeyDown={e => {
           switch (e.key) {
             case 'Enter':
@@ -75,13 +85,16 @@ const App = () => {
       </form>
       <Calendar
         locale={locale}
-        date={date}
+        date={currentDate}
         showWeekNumbers={!!showWeekNumbers}
         onChange={(e: any) => {
-          setState(s => ({
-            ...s,
-            date: e.value,
-          }));
+          if (e.value) {
+            setState(s => ({
+              ...s,
+              currentDate: e.value,
+              inputDate: e.value,
+            }));
+          }
         }}
         parseDate={s => {
           if (s instanceof Date) {

@@ -6,6 +6,7 @@ import {
   setMonth,
   setYear,
   startOfMonth,
+  startOfDay,
 } from 'date-fns/esm';
 import {
   DECREMENT_FOCUS_DATE,
@@ -67,19 +68,19 @@ export default (
     pageDate: number;
     focusDate?: number;
     selectedDate?: number;
-    givenDate?: number;
   },
   action: ActionType
 ) => {
   switch (action.type) {
     case SET_GIVEN_DATE: {
       const { date } = action;
+      const pageDate = startOfMonth(date).getTime();
+      const givenDate = startOfDay(date).getTime();
       return {
         ...state,
-        pageDate: date,
-        selectedDate: date,
-        focusDate: date,
-        givenDate: date,
+        pageDate,
+        selectedDate: givenDate,
+        focusDate: givenDate,
       };
     }
     case SET_SELECTED_DATE: {

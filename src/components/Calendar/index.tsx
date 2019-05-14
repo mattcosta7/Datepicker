@@ -1,4 +1,4 @@
-import { isSameDay, isValid, startOfMonth } from 'date-fns/esm';
+import { isValid, startOfMonth } from 'date-fns/esm';
 import { ThemeProvider } from 'emotion-theming';
 import * as React from 'react';
 import {
@@ -56,15 +56,15 @@ const Calendar = ({
 
   const theme = React.useMemo(() => ({}), []);
 
-  const [
-    { pageDate, focusDate, selectedDate, givenDate },
-    dispatch,
-  ] = React.useReducer(reducer, {
-    pageDate: startOfMonth(parsedDate || new Date()).getTime(),
-    focusDate: undefined,
-    selectedDate: parsedDate,
-    givenDate: parsedDate,
-  });
+  const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
+    reducer,
+    {
+      pageDate: startOfMonth(parsedDate || new Date()).getTime(),
+      focusDate: undefined,
+      selectedDate: parsedDate,
+    }
+  );
+  const lastSelectedDate = React.useRef(selectedDate);
 
   const innerLocale = React.useMemo(() => {
     return Intl.getCanonicalLocales(locale || defaultLocale);
@@ -80,15 +80,17 @@ const Calendar = ({
   }, [innerLocale]);
 
   React.useEffect(() => {
-    if (
-      givenDate &&
-      parsedDate &&
-      isValid(parsedDate) &&
-      !isSameDay(givenDate, parsedDate)
-    ) {
+    if (parsedDate && isValid(parsedDate)) {
       dispatch({ type: SET_GIVEN_DATE, date: parsedDate });
     }
-  }, [givenDate, parsedDate]);
+  }, [parsedDate]);
+
+  React.useEffect(() => {
+    if (onChange && lastSelectedDate.current !== selectedDate) {
+      lastSelectedDate.current = selectedDate;
+      onChange({ value: selectedDate ? new Date(selectedDate) : undefined });
+    }
+  }, [selectedDate, onChange]);
 
   return (
     <ThemeProvider theme={theme}>
