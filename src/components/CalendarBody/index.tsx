@@ -16,7 +16,7 @@ const CalendarBody = () => {
       month: 'numeric',
       year: 'numeric',
     }).format(focusDate);
-  }, [focusDate, locale]);
+  }, [focusDate && focusDate.getTime(), locale]);
 
   const style = React.useCallback(
     (_theme: any) => css`

@@ -9,7 +9,7 @@ import {
   DECREMENT_PAGE_YEAR,
   INCREMENT_PAGE_MONTH,
   INCREMENT_PAGE_YEAR,
-} from '../../context/Calendar/actions';
+} from '../Calendar/actions';
 import MonthSelector from '../MonthSelector';
 import YearSelector from '../YearSelector';
 
@@ -27,18 +27,18 @@ const Header = () => {
 
   const prevMonth = React.useMemo(
     () => dateFormatter(addMonths(pageDate, -1)),
-    [pageDate, dateFormatter]
+    [pageDate.getTime(), dateFormatter]
   );
   const prevYear = React.useMemo(() => dateFormatter(addYears(pageDate, -1)), [
-    pageDate,
+    pageDate.getTime(),
     dateFormatter,
   ]);
   const nextMonth = React.useMemo(() => dateFormatter(addMonths(pageDate, 1)), [
-    pageDate,
+    pageDate.getTime(),
     dateFormatter,
   ]);
   const nextYear = React.useMemo(() => dateFormatter(addYears(pageDate, 1)), [
-    pageDate,
+    pageDate.getTime(),
     dateFormatter,
   ]);
 
@@ -66,7 +66,7 @@ const Header = () => {
           break;
       }
     },
-    [pageDate, incrementPageYear, decrementPageYear]
+    [pageDate.getTime(), incrementPageYear, decrementPageYear]
   );
 
   const headerStyle = React.useCallback(
@@ -145,4 +145,6 @@ const Header = () => {
   );
 };
 
-export default React.memo(Header);
+export default React.memo(Header, () => {
+  return false;
+});

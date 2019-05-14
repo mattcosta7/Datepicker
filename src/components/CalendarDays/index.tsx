@@ -16,7 +16,7 @@ import {
   DECREMENT_FOCUS_MONTH,
   DECREMENT_FOCUS_YEAR,
   SET_SELECTED_DATE,
-} from '../../context/Calendar/actions';
+} from '../Calendar/actions';
 
 const CalendarDays = () => {
   const showWeekNumbers = useShowWeekNumbers();
@@ -41,7 +41,10 @@ const CalendarDays = () => {
     }).format;
   }, [locale]);
 
-  const numberFormatter = new Intl.NumberFormat(locale).format;
+  const numberFormatter = React.useMemo(
+    () => new Intl.NumberFormat(locale).format,
+    [locale]
+  );
 
   const handleFocus = React.useCallback(date => {
     dispatch({ type: SET_FOCUS_DATE, date });

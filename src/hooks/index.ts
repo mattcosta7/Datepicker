@@ -8,7 +8,7 @@ import {
   ShowWeekNumberContext,
   SelectedDateContext,
   SelectedDateOnChangeContext,
-} from 'context/Calendar';
+} from '../context';
 import { endOfMonth, getDaysInMonth, getDay, addDays } from 'date-fns/esm';
 
 import { chunk } from '../utils/array';
@@ -47,7 +47,14 @@ export const useSelectedDate = () => {
   return selectedDate;
 };
 export const useOnChange = () => {
+  const selectedDate = useSelectedDate();
   const onChange = React.useContext(SelectedDateOnChangeContext);
+
+  React.useEffect(() => {
+    if (onChange) {
+      onChange({ value: selectedDate });
+    }
+  }, []);
   return onChange;
 };
 
@@ -78,7 +85,7 @@ export const useCalendarDaysByWeek = () => {
       ].map((_, i) => addDays(pageDate, i - getDay(pageDate))),
       7
     );
-  }, [pageDate]);
+  }, [pageDate.getTime()]);
 
   return weeks;
 };

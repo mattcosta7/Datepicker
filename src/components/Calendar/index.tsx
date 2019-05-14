@@ -1,16 +1,32 @@
 import * as React from 'react';
 import { ThemeProvider } from 'emotion-theming';
-import { CalendarContextProvider } from '../../context/Calendar';
+import {
+  CalendarDispatchContext,
+  LocaleContext,
+  RtlContext,
+  ShowWeekNumberContext,
+  PageDateContext,
+  SelectedDateContext,
+  FocusDateContext,
+  SelectedDateOnChangeContext,
+  DateChangeHandler as BaseDateChangeHandler,
+} from '../../context';
 import CalendarBody from '../CalendarBody';
 import Header from '../Header';
+import { SET_GIVEN_DATE } from './actions';
+import defaultLocale from '../../utils/default-locale';
+import rtlLocales from '../../utils/rtl-locales';
+import reducer from './reducer';
+import { isValid, startOfMonth, isSameDay } from 'date-fns/esm';
 
+export interface DateChangeHandler extends BaseDateChangeHandler {}
 export interface CalendarProps {
   date?: Date | string;
   weekDays?: string[];
   weekStart?: number;
   locale?: string | string[];
   theme?: any;
-  onChange?: (e: any) => void;
+  onChange?: DateChangeHandler;
   style?: {
     day: React.CSSProperties;
     weekday: React.CSSProperties;
@@ -38,21 +54,66 @@ const Calendar = ({
     return date instanceof Date ? date : new Date(date);
   }, [parseDate, date]);
 
+  const theme = React.useMemo(() => ({}), []);
+
+  const [
+    { pageDate, focusDate, selectedDate, givenDate },
+    dispatch,
+  ] = React.useReducer(reducer, {
+    pageDate: startOfMonth(parsedDate || new Date()),
+    focusDate: undefined,
+    selectedDate: parsedDate,
+    givenDate: parsedDate,
+  });
+
+  const innerLocale = React.useMemo(() => {
+    return Intl.getCanonicalLocales(locale || defaultLocale);
+  }, [locale]);
+
+  const isRtl = React.useMemo(() => {
+    return !!innerLocale.find((locale: string) => {
+      return (
+        rtlLocales.hasOwnProperty(locale) ||
+        rtlLocales.hasOwnProperty(locale.split('-')[0])
+      );
+    });
+  }, [innerLocale]);
+
+  React.useEffect(() => {
+    if (
+      givenDate &&
+      parsedDate &&
+      isValid(parsedDate) &&
+      !isSameDay(givenDate, parsedDate)
+    ) {
+      dispatch({ type: SET_GIVEN_DATE, date: parsedDate });
+    }
+  }, [givenDate && givenDate.getTime(), parsedDate && parsedDate.getTime()]);
+
   return (
-    <ThemeProvider theme={{}}>
-      <CalendarContextProvider
-        locale={locale}
-        date={parsedDate}
-        showWeekNumbers={showWeekNumbers}
-        onChange={onChange}
-      >
-        <ErrorBoundary date={parsedDate}>
-          <div>
-            <Header />
-            <CalendarBody />
-          </div>
-        </ErrorBoundary>
-      </CalendarContextProvider>
+    <ThemeProvider theme={theme}>
+      <CalendarDispatchContext.Provider value={dispatch}>
+        <LocaleContext.Provider value={innerLocale}>
+          <RtlContext.Provider value={isRtl}>
+            <ShowWeekNumberContext.Provider value={showWeekNumbers}>
+              <PageDateContext.Provider value={pageDate}>
+                <SelectedDateContext.Provider value={selectedDate}>
+                  <FocusDateContext.Provider value={focusDate}>
+                    <SelectedDateOnChangeContext.Provider value={onChange}>
+                      <ErrorBoundary date={parsedDate}>
+                        <div>
+                          <Header />
+                          <CalendarBody />
+                        </div>
+                      </ErrorBoundary>
+                    </SelectedDateOnChangeContext.Provider>
+                  </FocusDateContext.Provider>
+                </SelectedDateContext.Provider>
+              </PageDateContext.Provider>
+            </ShowWeekNumberContext.Provider>
+          </RtlContext.Provider>
+        </LocaleContext.Provider>
+      </CalendarDispatchContext.Provider>
     </ThemeProvider>
   );
 };

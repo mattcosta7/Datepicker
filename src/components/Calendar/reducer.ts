@@ -23,6 +23,7 @@ import {
   INCREMENT_FOCUS_YEAR,
   DECREMENT_FOCUS_YEAR,
   SET_SELECTED_DATE,
+  SET_GIVEN_DATE,
 } from './actions';
 
 type ActionType =
@@ -30,7 +31,8 @@ type ActionType =
       type:
         | typeof SET_SELECTED_DATE
         | typeof SET_PAGE_DATE
-        | typeof SET_FOCUS_DATE;
+        | typeof SET_FOCUS_DATE
+        | typeof SET_GIVEN_DATE;
       date: Date;
     }
   | {
@@ -61,10 +63,25 @@ type ActionType =
     };
 
 export default (
-  state: { pageDate: Date; focusDate?: Date; selectedDate?: Date },
+  state: {
+    pageDate: Date;
+    focusDate?: Date;
+    selectedDate?: Date;
+    givenDate?: Date;
+  },
   action: ActionType
 ) => {
   switch (action.type) {
+    case SET_GIVEN_DATE: {
+      const { date } = action;
+      return {
+        ...state,
+        pageDate: date,
+        selectedDate: date,
+        focusDate: date,
+        givenDate: date,
+      };
+    }
     case SET_SELECTED_DATE: {
       const nextSelectedDate = action.date;
       const nextPageDate = startOfMonth(nextSelectedDate);

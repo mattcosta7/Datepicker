@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/core';
 import * as React from 'react';
 import { useCalendarDispatch, usePageDate, useLocale } from '../../hooks';
-import { SET_PAGE_YEAR } from '../../context/Calendar/actions';
+import { SET_PAGE_YEAR } from '../Calendar/actions';
 
 const YearSelector = ({
   handleKeyDown,
@@ -24,7 +24,7 @@ const YearSelector = ({
 
   const yearFormatted = React.useMemo(
     () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(pageDate),
-    [locale, pageDate]
+    [locale, pageDate.getTime()]
   );
 
   const containerStyle = React.useCallback(
