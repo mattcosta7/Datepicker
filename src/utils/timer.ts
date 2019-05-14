@@ -12,12 +12,14 @@ export const requestTimeout = <T extends (...args: any[]) => any>(
   };
 
   const loop = () => {
-    var current = new Date().getTime(),
-      delta = current - start;
+    const current = new Date().getTime();
+    const delta = current - start;
 
-    delta >= delay
-      ? fn.call(null)
-      : (handle.value = requestAnimationFrame(loop));
+    if (delta >= delay) {
+      fn.call(null);
+    } else {
+      handle.value = requestAnimationFrame(loop);
+    }
   };
 
   handle.value = requestAnimationFrame(loop);

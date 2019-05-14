@@ -1,23 +1,23 @@
-import * as React from 'react';
+import { isSameDay, isValid, startOfMonth } from 'date-fns/esm';
 import { ThemeProvider } from 'emotion-theming';
+import * as React from 'react';
 import {
   CalendarDispatchContext,
-  LocaleContext,
-  RtlContext,
-  ShowWeekNumberContext,
-  PageDateContext,
-  SelectedDateContext,
-  FocusDateContext,
-  SelectedDateOnChangeContext,
   DateChangeHandler as BaseDateChangeHandler,
+  FocusDateContext,
+  LocaleContext,
+  PageDateContext,
+  RtlContext,
+  SelectedDateContext,
+  SelectedDateOnChangeContext,
+  ShowWeekNumberContext,
 } from '../../context';
+import defaultLocale from '../../utils/default-locale';
+import rtlLocales from '../../utils/rtl-locales';
 import CalendarBody from '../CalendarBody';
 import Header from '../Header';
 import { SET_GIVEN_DATE } from './actions';
-import defaultLocale from '../../utils/default-locale';
-import rtlLocales from '../../utils/rtl-locales';
 import reducer from './reducer';
-import { isValid, startOfMonth, isSameDay } from 'date-fns/esm';
 
 export interface DateChangeHandler extends BaseDateChangeHandler {}
 export interface CalendarProps {
@@ -88,7 +88,7 @@ const Calendar = ({
     ) {
       dispatch({ type: SET_GIVEN_DATE, date: parsedDate });
     }
-  }, [givenDate && givenDate.getTime(), parsedDate && parsedDate.getTime()]);
+  }, [givenDate, parsedDate]);
 
   return (
     <ThemeProvider theme={theme}>

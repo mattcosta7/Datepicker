@@ -1,16 +1,15 @@
+import { addDays, endOfMonth, getDay, getDaysInMonth } from 'date-fns/esm';
 import * as React from 'react';
 import {
   CalendarDispatchContext,
-  PageDateContext,
-  LocaleContext,
-  RtlContext,
   FocusDateContext,
-  ShowWeekNumberContext,
+  LocaleContext,
+  PageDateContext,
+  RtlContext,
   SelectedDateContext,
   SelectedDateOnChangeContext,
+  ShowWeekNumberContext,
 } from '../context';
-import { endOfMonth, getDaysInMonth, getDay, addDays } from 'date-fns/esm';
-
 import { chunk } from '../utils/array';
 
 export const useCalendarDispatch = () => {
@@ -50,11 +49,12 @@ export const useOnChange = () => {
   const selectedDate = useSelectedDate();
   const onChange = React.useContext(SelectedDateOnChangeContext);
 
+  const selectedTime = selectedDate && selectedDate.getTime();
   React.useEffect(() => {
     if (onChange) {
-      onChange({ value: selectedDate });
+      onChange({ value: selectedTime ? new Date(selectedTime) : undefined });
     }
-  }, []);
+  }, [onChange, selectedTime]);
   return onChange;
 };
 
@@ -85,7 +85,7 @@ export const useCalendarDaysByWeek = () => {
       ].map((_, i) => addDays(pageDate, i - getDay(pageDate))),
       7
     );
-  }, [pageDate.getTime()]);
+  }, [pageDate]);
 
   return weeks;
 };

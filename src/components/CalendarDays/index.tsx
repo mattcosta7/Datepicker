@@ -1,22 +1,22 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import * as React from 'react';
 import { getWeek } from 'date-fns/esm';
+import * as React from 'react';
 import {
-  useLocale,
-  useCalendarDispatch,
-  useShowWeekNumbers,
   useCalendarDaysByWeek,
+  useCalendarDispatch,
+  useLocale,
+  useShowWeekNumbers,
 } from '../../hooks';
-import Day from '../Day';
 import {
-  SET_FOCUS_DATE,
-  INCREMENT_FOCUS_DATE,
   DECREMENT_FOCUS_DATE,
   DECREMENT_FOCUS_MONTH,
   DECREMENT_FOCUS_YEAR,
+  INCREMENT_FOCUS_DATE,
+  SET_FOCUS_DATE,
   SET_SELECTED_DATE,
 } from '../Calendar/actions';
+import Day from '../Day';
 
 const CalendarDays = () => {
   const showWeekNumbers = useShowWeekNumbers();
@@ -46,13 +46,19 @@ const CalendarDays = () => {
     [locale]
   );
 
-  const handleFocus = React.useCallback(date => {
-    dispatch({ type: SET_FOCUS_DATE, date });
-  }, []);
+  const handleFocus = React.useCallback(
+    date => {
+      dispatch({ type: SET_FOCUS_DATE, date });
+    },
+    [dispatch]
+  );
 
-  const handleClick = React.useCallback(date => {
-    dispatch({ type: SET_SELECTED_DATE, date });
-  }, []);
+  const handleClick = React.useCallback(
+    date => {
+      dispatch({ type: SET_SELECTED_DATE, date });
+    },
+    [dispatch]
+  );
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLAnchorElement>, date) => {

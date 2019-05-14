@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import * as React from 'react';
-import { useCalendarDispatch, usePageDate, useMonthNames } from '../../hooks';
 import { getMonth } from 'date-fns/esm';
+import * as React from 'react';
+import { useCalendarDispatch, useMonthNames, usePageDate } from '../../hooks';
 import { SET_PAGE_MONTH } from '../Calendar/actions';
 
 const MonthSelector = () => {
@@ -14,7 +14,7 @@ const MonthSelector = () => {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       dispatch({ type: SET_PAGE_MONTH, month: parseInt(e.target.value, 10) });
     },
-    []
+    [dispatch]
   );
 
   const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [pageDate]);

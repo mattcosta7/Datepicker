@@ -1,15 +1,9 @@
 {
   "extends": ["prettier", "prettier/react"],
-  "plugins": ["prettier", "react-hooks"],
+  "plugins": ["prettier", "react-hooks", "import"],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error",
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [".js", ".jsx"]
-      }
-    ],
     "react/prop-types": 0,
     "no-underscore-dangle": 0,
     "import/imports-first": ["error", "absolute-first"],
@@ -24,5 +18,9 @@
     "Blob": true,
     "navigator": true
   },
-  "parser": "babel-eslint"
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  }
 }

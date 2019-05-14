@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/core';
+import { css, jsx } from '@emotion/core';
 import * as React from 'react';
-import { useCalendarDispatch, usePageDate, useLocale } from '../../hooks';
+import { useCalendarDispatch, useLocale, usePageDate } from '../../hooks';
 import { SET_PAGE_YEAR } from '../Calendar/actions';
 
 const YearSelector = ({
@@ -12,6 +12,9 @@ const YearSelector = ({
   const dispatch = useCalendarDispatch();
   const [locale] = useLocale();
   const pageDate = usePageDate();
+
+  const pageTime = pageDate.getTime();
+
   const handleYearChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch({
@@ -19,12 +22,15 @@ const YearSelector = ({
         year: parseInt(e.target.value || '0', 10),
       });
     },
-    []
+    [dispatch]
   );
 
   const yearFormatted = React.useMemo(
-    () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(pageDate),
-    [locale, pageDate.getTime()]
+    () =>
+      new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(
+        pageTime ? new Date(pageTime) : undefined
+      ),
+    [locale, pageTime]
   );
 
   const containerStyle = React.useCallback(

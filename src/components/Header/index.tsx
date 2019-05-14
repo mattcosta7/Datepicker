@@ -1,8 +1,8 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/core';
-import * as React from 'react';
-import { useCalendarDispatch, usePageDate, useLocale } from '../../hooks';
+import { css, jsx } from '@emotion/core';
 import { addMonths, addYears } from 'date-fns/esm';
+import * as React from 'react';
+import { useCalendarDispatch, useLocale, usePageDate } from '../../hooks';
 import Button from '../Button';
 import {
   DECREMENT_PAGE_MONTH,
@@ -18,6 +18,8 @@ const Header = () => {
   const pageDate = usePageDate();
   const [locale, rtl] = useLocale();
 
+  const pageTime = pageDate.getTime();
+
   const dateFormatter = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
       month: 'long',
@@ -26,21 +28,21 @@ const Header = () => {
   }, [locale]);
 
   const prevMonth = React.useMemo(
-    () => dateFormatter(addMonths(pageDate, -1)),
-    [pageDate.getTime(), dateFormatter]
+    () => dateFormatter(addMonths(new Date(pageTime), -1)),
+    [pageTime, dateFormatter]
   );
-  const prevYear = React.useMemo(() => dateFormatter(addYears(pageDate, -1)), [
-    pageDate.getTime(),
-    dateFormatter,
-  ]);
-  const nextMonth = React.useMemo(() => dateFormatter(addMonths(pageDate, 1)), [
-    pageDate.getTime(),
-    dateFormatter,
-  ]);
-  const nextYear = React.useMemo(() => dateFormatter(addYears(pageDate, 1)), [
-    pageDate.getTime(),
-    dateFormatter,
-  ]);
+  const prevYear = React.useMemo(
+    () => dateFormatter(addYears(new Date(pageTime), -1)),
+    [pageTime, dateFormatter]
+  );
+  const nextMonth = React.useMemo(
+    () => dateFormatter(addMonths(new Date(pageTime), 1)),
+    [pageTime, dateFormatter]
+  );
+  const nextYear = React.useMemo(
+    () => dateFormatter(addYears(new Date(pageTime), 1)),
+    [pageTime, dateFormatter]
+  );
 
   const decrementPageYear = React.useCallback(() => {
     dispatch({ type: DECREMENT_PAGE_YEAR });
@@ -66,7 +68,7 @@ const Header = () => {
           break;
       }
     },
-    [pageDate.getTime(), incrementPageYear, decrementPageYear]
+    [incrementPageYear, decrementPageYear]
   );
 
   const headerStyle = React.useCallback(

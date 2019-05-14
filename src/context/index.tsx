@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { startOfMonth } from 'date-fns/esm';
+import * as React from 'react';
 
 export const PageDateContext = React.createContext(startOfMonth(new Date()));
 PageDateContext.displayName = 'PageDateContext';
