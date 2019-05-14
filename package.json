@@ -20,8 +20,15 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "NODE_ENV=production lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "pretty-quick --staged",
+      "eslint src/ --fix",
+      "git add"
+    ]
   },
   "prettier": {
     "printWidth": 80,
@@ -33,7 +40,13 @@
     "@types/jest": "^24.0.13",
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
+    "eslint": "^5.16.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-react": "^7.13.0",
+    "eslint-plugin-react-hooks": "^1.6.0",
     "husky": "^2.2.0",
+    "lint-staged": "^8.1.6",
     "prettier": "^1.17.1",
     "pretty-quick": "^1.10.0",
     "react": "^16.8.6",
