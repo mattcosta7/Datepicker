@@ -33,7 +33,7 @@ type ActionType =
         | typeof SET_PAGE_DATE
         | typeof SET_FOCUS_DATE
         | typeof SET_GIVEN_DATE;
-      date: Date;
+      date: number;
     }
   | {
       type:
@@ -64,10 +64,10 @@ type ActionType =
 
 export default (
   state: {
-    pageDate: Date;
-    focusDate?: Date;
-    selectedDate?: Date;
-    givenDate?: Date;
+    pageDate: number;
+    focusDate?: number;
+    selectedDate?: number;
+    givenDate?: number;
   },
   action: ActionType
 ) => {
@@ -83,13 +83,13 @@ export default (
       };
     }
     case SET_SELECTED_DATE: {
-      const nextSelectedDate = action.date;
+      const nextSelectedDate = new Date(action.date);
       const nextPageDate = startOfMonth(nextSelectedDate);
       if (!isValid(nextSelectedDate) || !isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
-        selectedDate: nextSelectedDate,
+        pageDate: nextPageDate.getTime(),
+        selectedDate: nextSelectedDate.getTime(),
       };
     }
     case DECREMENT_PAGE_MONTH: {
@@ -97,7 +97,7 @@ export default (
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case DECREMENT_PAGE_YEAR: {
@@ -105,7 +105,7 @@ export default (
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case INCREMENT_PAGE_MONTH: {
@@ -113,7 +113,7 @@ export default (
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case INCREMENT_PAGE_YEAR: {
@@ -121,7 +121,7 @@ export default (
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case SET_PAGE_MONTH: {
@@ -132,7 +132,7 @@ export default (
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case SET_PAGE_YEAR: {
@@ -143,23 +143,23 @@ export default (
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case SET_PAGE_DATE: {
-      const nextPageDate = action.date;
+      const nextPageDate = new Date(action.date);
       if (!isValid(nextPageDate)) return state;
       return {
         ...state,
-        pageDate: nextPageDate,
+        pageDate: nextPageDate.getTime(),
       };
     }
     case SET_FOCUS_DATE: {
-      const nextFocusDate = action.date;
+      const nextFocusDate = new Date(action.date);
       if (!isValid(nextFocusDate)) return state;
       return {
         ...state,
-        focusDate: nextFocusDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     case INCREMENT_FOCUS_DATE: {
@@ -168,8 +168,10 @@ export default (
       const nextPageDate = startOfMonth(nextFocusDate);
       return {
         ...state,
-        pageDate: isValid(nextPageDate) ? nextPageDate : state.pageDate,
-        focusDate: nextFocusDate,
+        pageDate: isValid(nextPageDate)
+          ? nextPageDate.getTime()
+          : state.pageDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     case DECREMENT_FOCUS_DATE: {
@@ -181,8 +183,10 @@ export default (
       const nextPageDate = startOfMonth(nextFocusDate);
       return {
         ...state,
-        pageDate: isValid(nextPageDate) ? nextPageDate : state.pageDate,
-        focusDate: nextFocusDate,
+        pageDate: isValid(nextPageDate)
+          ? nextPageDate.getTime()
+          : state.pageDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     case INCREMENT_FOCUS_MONTH: {
@@ -194,8 +198,10 @@ export default (
       const nextPageDate = startOfMonth(nextFocusDate);
       return {
         ...state,
-        pageDate: isValid(nextPageDate) ? nextPageDate : state.pageDate,
-        focusDate: nextFocusDate,
+        pageDate: isValid(nextPageDate)
+          ? nextPageDate.getTime()
+          : state.pageDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     case DECREMENT_FOCUS_MONTH: {
@@ -207,8 +213,10 @@ export default (
       const nextPageDate = startOfMonth(nextFocusDate);
       return {
         ...state,
-        pageDate: isValid(nextPageDate) ? nextPageDate : state.pageDate,
-        focusDate: nextFocusDate,
+        pageDate: isValid(nextPageDate)
+          ? nextPageDate.getTime()
+          : state.pageDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     case INCREMENT_FOCUS_YEAR: {
@@ -217,8 +225,10 @@ export default (
       const nextPageDate = startOfMonth(nextFocusDate);
       return {
         ...state,
-        pageDate: isValid(nextPageDate) ? nextPageDate : state.pageDate,
-        focusDate: nextFocusDate,
+        pageDate: isValid(nextPageDate)
+          ? nextPageDate.getTime()
+          : state.pageDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     case DECREMENT_FOCUS_YEAR: {
@@ -230,8 +240,10 @@ export default (
       const nextPageDate = startOfMonth(nextFocusDate);
       return {
         ...state,
-        pageDate: isValid(nextPageDate) ? nextPageDate : state.pageDate,
-        focusDate: nextFocusDate,
+        pageDate: isValid(nextPageDate)
+          ? nextPageDate.getTime()
+          : state.pageDate,
+        focusDate: nextFocusDate.getTime(),
       };
     }
     default: {

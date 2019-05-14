@@ -13,8 +13,6 @@ const YearSelector = ({
   const [locale] = useLocale();
   const pageDate = usePageDate();
 
-  const pageTime = pageDate.getTime();
-
   const handleYearChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch({
@@ -26,11 +24,8 @@ const YearSelector = ({
   );
 
   const yearFormatted = React.useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(
-        pageTime ? new Date(pageTime) : undefined
-      ),
-    [locale, pageTime]
+    () => new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(pageDate),
+    [locale, pageDate]
   );
 
   const containerStyle = React.useCallback(

@@ -50,8 +50,7 @@ const Day = ({
     if (
       ref.current &&
       sameMonth &&
-      focusDate &&
-      focusDate.getTime() === date.getTime()
+      ((focusDate || focusDate === 0) && focusDate === date)
     ) {
       ref.current.focus();
     }

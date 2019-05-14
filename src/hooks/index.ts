@@ -49,12 +49,11 @@ export const useOnChange = () => {
   const selectedDate = useSelectedDate();
   const onChange = React.useContext(SelectedDateOnChangeContext);
 
-  const selectedTime = selectedDate && selectedDate.getTime();
   React.useEffect(() => {
     if (onChange) {
-      onChange({ value: selectedTime ? new Date(selectedTime) : undefined });
+      onChange({ value: selectedDate ? new Date(selectedDate) : undefined });
     }
-  }, [onChange, selectedTime]);
+  }, [onChange, selectedDate]);
   return onChange;
 };
 

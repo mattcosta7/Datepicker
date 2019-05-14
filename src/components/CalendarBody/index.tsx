@@ -9,15 +9,14 @@ const CalendarBody = () => {
   const [locale, rtl] = useLocale();
   const focusDate = useFocusDate();
 
-  const focusTime = focusDate && focusDate.getTime();
   const activeDescendantId = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
       weekday: 'long',
       day: 'numeric',
       month: 'numeric',
       year: 'numeric',
-    }).format(focusTime ? new Date(focusTime) : undefined);
-  }, [focusTime, locale]);
+    }).format(focusDate);
+  }, [focusDate, locale]);
 
   const style = React.useCallback(
     (_theme: any) => css`

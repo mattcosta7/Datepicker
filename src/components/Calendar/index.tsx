@@ -49,9 +49,9 @@ const Calendar = ({
   const parsedDate = React.useMemo(() => {
     if (!date) return undefined;
     if (parseDate) {
-      return parseDate(date);
+      return parseDate(date).getTime();
     }
-    return date instanceof Date ? date : new Date(date);
+    return (date instanceof Date ? date : new Date(date)).getTime();
   }, [parseDate, date]);
 
   const theme = React.useMemo(() => ({}), []);
@@ -60,7 +60,7 @@ const Calendar = ({
     { pageDate, focusDate, selectedDate, givenDate },
     dispatch,
   ] = React.useReducer(reducer, {
-    pageDate: startOfMonth(parsedDate || new Date()),
+    pageDate: startOfMonth(parsedDate || new Date()).getTime(),
     focusDate: undefined,
     selectedDate: parsedDate,
     givenDate: parsedDate,

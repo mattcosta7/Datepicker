@@ -1,10 +1,12 @@
 import { startOfMonth } from 'date-fns/esm';
 import * as React from 'react';
 
-export const PageDateContext = React.createContext(startOfMonth(new Date()));
+export const PageDateContext = React.createContext(
+  startOfMonth(new Date()).getTime()
+);
 PageDateContext.displayName = 'PageDateContext';
 
-export const FocusDateContext = React.createContext<Date | undefined>(
+export const FocusDateContext = React.createContext<number | undefined>(
   undefined
 );
 FocusDateContext.displayName = 'FocusDateContext';
@@ -22,7 +24,7 @@ export const CalendarDispatchContext = React.createContext<React.Dispatch<
 > | void>(undefined);
 CalendarDispatchContext.displayName = 'CalendarDispatchContext';
 
-export const SelectedDateContext = React.createContext<Date | undefined>(
+export const SelectedDateContext = React.createContext<number | undefined>(
   undefined
 );
 SelectedDateContext.displayName = 'SelectedDateContext';

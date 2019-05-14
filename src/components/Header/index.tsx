@@ -18,8 +18,6 @@ const Header = () => {
   const pageDate = usePageDate();
   const [locale, rtl] = useLocale();
 
-  const pageTime = pageDate.getTime();
-
   const dateFormatter = React.useMemo(() => {
     return new Intl.DateTimeFormat(locale, {
       month: 'long',
@@ -28,21 +26,21 @@ const Header = () => {
   }, [locale]);
 
   const prevMonth = React.useMemo(
-    () => dateFormatter(addMonths(new Date(pageTime), -1)),
-    [pageTime, dateFormatter]
+    () => dateFormatter(addMonths(pageDate, -1)),
+    [pageDate, dateFormatter]
   );
-  const prevYear = React.useMemo(
-    () => dateFormatter(addYears(new Date(pageTime), -1)),
-    [pageTime, dateFormatter]
-  );
-  const nextMonth = React.useMemo(
-    () => dateFormatter(addMonths(new Date(pageTime), 1)),
-    [pageTime, dateFormatter]
-  );
-  const nextYear = React.useMemo(
-    () => dateFormatter(addYears(new Date(pageTime), 1)),
-    [pageTime, dateFormatter]
-  );
+  const prevYear = React.useMemo(() => dateFormatter(addYears(pageDate, -1)), [
+    pageDate,
+    dateFormatter,
+  ]);
+  const nextMonth = React.useMemo(() => dateFormatter(addMonths(pageDate, 1)), [
+    pageDate,
+    dateFormatter,
+  ]);
+  const nextYear = React.useMemo(() => dateFormatter(addYears(pageDate, 1)), [
+    pageDate,
+    dateFormatter,
+  ]);
 
   const decrementPageYear = React.useCallback(() => {
     dispatch({ type: DECREMENT_PAGE_YEAR });

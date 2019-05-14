@@ -139,7 +139,7 @@ const CalendarDays = () => {
               return (
                 <td key={v.toLocaleDateString()}>
                   <Day
-                    date={v}
+                    date={v.getTime()}
                     title={dateString}
                     id={dateString}
                     aria-label={dateString}
