@@ -5,7 +5,31 @@ import { LocaleContext, RtlContext } from '../../context';
 import defaultLocale from '../../utils/default-locale';
 import rtlLocales from '../../utils/rtl-locales';
 
-const Input = ({ locale, date, showWeekNumbers }: any) => {
+const defaultParseDate = (s: any) => {
+  if (s instanceof Date) {
+    return s;
+  }
+  const d = s.split('/');
+  return new Date(
+    parseInt(d[2], 10),
+    parseInt(d[0], 10) - 1,
+    parseInt(d[1], 10)
+  );
+};
+
+const Input = ({
+  locale,
+  date,
+  showWeekNumbers,
+  portalContainer = document.body,
+  parseDate = defaultParseDate,
+  closeOnSelect,
+  closeOnClickOutside = true,
+}: any) => {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const calendarRef = React.useRef<HTMLDivElement | null>(null);
+  const [isOpen, setOpen] = React.useState(false);
+
   const innerLocale = React.useMemo(() => {
     return Intl.getCanonicalLocales(locale || defaultLocale);
   }, [locale]);
@@ -20,7 +44,7 @@ const Input = ({ locale, date, showWeekNumbers }: any) => {
   }, [innerLocale]);
 
   const [{ currentDate, inputDate = '' }, setState] = React.useState<any>({
-    currentDate: date,
+    currentDate: (date && parseDate(date)) || '',
     inputDate: date || '',
   });
 
@@ -28,7 +52,7 @@ const Input = ({ locale, date, showWeekNumbers }: any) => {
     e => {
       if (e.target instanceof HTMLInputElement) {
         const { value } = e.target;
-        setState(s => ({
+        setState((s: any) => ({
           ...s,
           currentDate: value,
           inputDate: value,
@@ -54,7 +78,7 @@ const Input = ({ locale, date, showWeekNumbers }: any) => {
     e => {
       if (e.target instanceof HTMLInputElement) {
         const { value } = e.target;
-        setState(s => ({
+        setState((s: any) => ({
           ...s,
           inputDate: value,
         }));
@@ -63,48 +87,86 @@ const Input = ({ locale, date, showWeekNumbers }: any) => {
     [setState]
   );
 
+  const onCalendarChange = React.useCallback(
+    (e: any) => {
+      if (e.value) {
+        setState((s: any) => ({
+          ...s,
+          currentDate: e.value,
+          inputDate: e.value,
+        }));
+      }
+      if (closeOnSelect) {
+        setOpen(false);
+      }
+    },
+    [setOpen, setState, closeOnSelect]
+  );
+
+  const calendar = (
+    <Calendar
+      ref={calendarRef}
+      locale={locale}
+      date={currentDate && new Date(currentDate)}
+      showWeekNumbers={!!showWeekNumbers}
+      onChange={onCalendarChange}
+    />
+  );
+
+  const calendarContainer = portalContainer
+    ? createPortal(calendar, portalContainer)
+    : calendar;
+
+  const value = React.useMemo(() => {
+    return inputDate instanceof Date
+      ? new Intl.DateTimeFormat(innerLocale).format(inputDate as Date)
+      : inputDate;
+  }, [inputDate, innerLocale]);
+
+  const openCalendar = React.useCallback(() => setOpen(true), [setOpen]);
+
+  React.useEffect(() => {
+    const handler = (event: MouseEvent) => {
+      if (!closeOnClickOutside) return;
+      if (!isOpen) return;
+      if (
+        inputRef.current &&
+        (event.target === inputRef.current ||
+          (event.target instanceof Node &&
+            inputRef.current.contains(event.target)))
+      ) {
+        return;
+      }
+      if (
+        calendarRef.current &&
+        (event.target === calendarRef.current ||
+          (event.target instanceof Node &&
+            calendarRef.current.contains(event.target)))
+      ) {
+        return;
+      }
+
+      setOpen(false);
+    };
+    window.addEventListener('click', handler);
+    return () => {
+      window.removeEventListener('click', handler);
+    };
+  }, [isOpen, closeOnClickOutside]);
+
   return (
     <LocaleContext.Provider value={innerLocale}>
       <RtlContext.Provider value={isRtl}>
         <input
+          ref={inputRef}
           name="inputDate"
-          value={
-            inputDate instanceof Date
-              ? new Intl.DateTimeFormat(innerLocale).format(inputDate as Date)
-              : inputDate
-          }
+          value={value}
           onBlur={onBlur}
           onChange={onChange}
           onKeyDown={onKeyDown}
+          onFocus={openCalendar}
         />
-        {createPortal(
-          <Calendar
-            locale={locale}
-            date={currentDate}
-            showWeekNumbers={!!showWeekNumbers}
-            onChange={(e: any) => {
-              if (e.value) {
-                setState(s => ({
-                  ...s,
-                  currentDate: e.value,
-                  inputDate: e.value,
-                }));
-              }
-            }}
-            parseDate={s => {
-              if (s instanceof Date) {
-                return s;
-              }
-              const d = s.split('/');
-              return new Date(
-                parseInt(d[2], 10),
-                parseInt(d[0], 10) - 1,
-                parseInt(d[1], 10)
-              );
-            }}
-          />,
-          document.body
-        )}
+        {isOpen && calendarContainer}
       </RtlContext.Provider>
     </LocaleContext.Provider>
   );

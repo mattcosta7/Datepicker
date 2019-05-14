@@ -14,9 +14,10 @@ import CalendarBody from '../CalendarBody';
 import Header from '../Header';
 import { SET_GIVEN_DATE } from './actions';
 import reducer from './reducer';
+
 export interface DateChangeHandler extends BaseDateChangeHandler {}
 export interface CalendarProps {
-  date?: Date | string;
+  date?: Date;
   weekDays?: string[];
   weekStart?: number;
   locale?: string | string[];
@@ -38,34 +39,25 @@ const Calendar = ({
   date,
   onChange,
   showWeekNumbers,
-  parseDate,
   forwardedRef,
 }: CalendarProps & { forwardedRef?: any }) => {
-  const parsedDate = React.useMemo(() => {
-    if (!date) return undefined;
-    if (parseDate) {
-      return parseDate(date).getTime();
-    }
-    return (date instanceof Date ? date : new Date(date)).getTime();
-  }, [parseDate, date]);
-
   const theme = React.useMemo(() => ({}), []);
-
+  const time = (date && date.getTime()) || undefined;
   const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
     reducer,
     {
-      pageDate: startOfMonth(parsedDate || new Date()).getTime(),
+      pageDate: startOfMonth(date || new Date()).getTime(),
       focusDate: undefined,
-      selectedDate: parsedDate,
+      selectedDate: (date && date.getTime()) || undefined,
     }
   );
   const lastSelectedDate = React.useRef(selectedDate);
 
   React.useEffect(() => {
-    if (parsedDate && isValid(parsedDate)) {
-      dispatch({ type: SET_GIVEN_DATE, date: parsedDate });
+    if (time && isValid(time)) {
+      dispatch({ type: SET_GIVEN_DATE, date: time });
     }
-  }, [parsedDate]);
+  }, [time]);
 
   React.useEffect(() => {
     if (onChange && lastSelectedDate.current !== selectedDate) {
@@ -82,7 +74,7 @@ const Calendar = ({
             <SelectedDateContext.Provider value={selectedDate}>
               <FocusDateContext.Provider value={focusDate}>
                 <SelectedDateOnChangeContext.Provider value={onChange}>
-                  <ErrorBoundary date={parsedDate}>
+                  <ErrorBoundary date={time}>
                     <div ref={forwardedRef}>
                       <Header />
                       <CalendarBody />
