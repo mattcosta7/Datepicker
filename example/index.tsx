@@ -1,49 +1,14 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Calendar } from '../src';
+import { Input } from '../src';
 import locales from './locales';
 
 const App = () => {
-  const [
-    { locale, currentDate, inputDate = '', showWeekNumbers },
-    setState,
-  ] = React.useState<any>({});
-  const onBlur = e => {
-    if (e.target instanceof HTMLInputElement) {
-      const { value } = e.target;
-      console.log(value);
-
-      setState(s => ({
-        ...s,
-        currentDate: value,
-        inputDate: value,
-      }));
-    }
-  };
+  const [{ locale, showWeekNumbers }, setState] = React.useState<any>({});
 
   return (
     <div>
-      <input
-        name="date"
-        value={inputDate.toLocaleString()}
-        onBlur={onBlur}
-        onChange={e => {
-          const { value } = e.target;
-          setState(s => ({
-            ...s,
-            inputDate: value,
-          }));
-        }}
-        onKeyDown={e => {
-          switch (e.key) {
-            case 'Enter':
-              onBlur(e);
-              return;
-          }
-        }}
-      />
-      {/* <output>{date && date.toLocaleString()}</output> */}
       <form
         onChange={e => {
           if (
@@ -83,31 +48,7 @@ const App = () => {
           ))}
         </select>
       </form>
-      <Calendar
-        locale={locale}
-        date={currentDate}
-        showWeekNumbers={!!showWeekNumbers}
-        onChange={(e: any) => {
-          if (e.value) {
-            setState(s => ({
-              ...s,
-              currentDate: e.value,
-              inputDate: e.value,
-            }));
-          }
-        }}
-        parseDate={s => {
-          if (s instanceof Date) {
-            return s;
-          }
-          const d = s.split('/');
-          return new Date(
-            parseInt(d[2], 10),
-            parseInt(d[0], 10) - 1,
-            parseInt(d[1], 10)
-          );
-        }}
-      />
+      <Input locale={locale} showWeekNumbers={showWeekNumbers} />
     </div>
   );
 };

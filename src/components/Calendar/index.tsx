@@ -5,20 +5,15 @@ import {
   CalendarDispatchContext,
   DateChangeHandler as BaseDateChangeHandler,
   FocusDateContext,
-  LocaleContext,
   PageDateContext,
-  RtlContext,
   SelectedDateContext,
   SelectedDateOnChangeContext,
   ShowWeekNumberContext,
 } from '../../context';
-import defaultLocale from '../../utils/default-locale';
-import rtlLocales from '../../utils/rtl-locales';
 import CalendarBody from '../CalendarBody';
 import Header from '../Header';
 import { SET_GIVEN_DATE } from './actions';
 import reducer from './reducer';
-
 export interface DateChangeHandler extends BaseDateChangeHandler {}
 export interface CalendarProps {
   date?: Date | string;
@@ -41,11 +36,11 @@ export interface CalendarProps {
 
 const Calendar = ({
   date,
-  locale,
   onChange,
   showWeekNumbers,
   parseDate,
-}: CalendarProps) => {
+  forwardedRef,
+}: CalendarProps & { forwardedRef?: any }) => {
   const parsedDate = React.useMemo(() => {
     if (!date) return undefined;
     if (parseDate) {
@@ -66,19 +61,6 @@ const Calendar = ({
   );
   const lastSelectedDate = React.useRef(selectedDate);
 
-  const innerLocale = React.useMemo(() => {
-    return Intl.getCanonicalLocales(locale || defaultLocale);
-  }, [locale]);
-
-  const isRtl = React.useMemo(() => {
-    return !!innerLocale.find((locale: string) => {
-      return (
-        rtlLocales.hasOwnProperty(locale) ||
-        rtlLocales.hasOwnProperty(locale.split('-')[0])
-      );
-    });
-  }, [innerLocale]);
-
   React.useEffect(() => {
     if (parsedDate && isValid(parsedDate)) {
       dispatch({ type: SET_GIVEN_DATE, date: parsedDate });
@@ -95,26 +77,22 @@ const Calendar = ({
   return (
     <ThemeProvider theme={theme}>
       <CalendarDispatchContext.Provider value={dispatch}>
-        <LocaleContext.Provider value={innerLocale}>
-          <RtlContext.Provider value={isRtl}>
-            <ShowWeekNumberContext.Provider value={showWeekNumbers}>
-              <PageDateContext.Provider value={pageDate}>
-                <SelectedDateContext.Provider value={selectedDate}>
-                  <FocusDateContext.Provider value={focusDate}>
-                    <SelectedDateOnChangeContext.Provider value={onChange}>
-                      <ErrorBoundary date={parsedDate}>
-                        <div>
-                          <Header />
-                          <CalendarBody />
-                        </div>
-                      </ErrorBoundary>
-                    </SelectedDateOnChangeContext.Provider>
-                  </FocusDateContext.Provider>
-                </SelectedDateContext.Provider>
-              </PageDateContext.Provider>
-            </ShowWeekNumberContext.Provider>
-          </RtlContext.Provider>
-        </LocaleContext.Provider>
+        <ShowWeekNumberContext.Provider value={showWeekNumbers}>
+          <PageDateContext.Provider value={pageDate}>
+            <SelectedDateContext.Provider value={selectedDate}>
+              <FocusDateContext.Provider value={focusDate}>
+                <SelectedDateOnChangeContext.Provider value={onChange}>
+                  <ErrorBoundary date={parsedDate}>
+                    <div ref={forwardedRef}>
+                      <Header />
+                      <CalendarBody />
+                    </div>
+                  </ErrorBoundary>
+                </SelectedDateOnChangeContext.Provider>
+              </FocusDateContext.Provider>
+            </SelectedDateContext.Provider>
+          </PageDateContext.Provider>
+        </ShowWeekNumberContext.Provider>
       </CalendarDispatchContext.Provider>
     </ThemeProvider>
   );
@@ -150,4 +128,16 @@ class ErrorBoundary extends React.PureComponent<any, any> {
   }
 }
 
-export default React.memo(Calendar);
+(Calendar as any).displayName = 'Calendar';
+
+const ForwardRefCalendar = React.forwardRef<any, any>((props, ref) => (
+  <Calendar forwardedRef={ref} {...props} />
+));
+
+ForwardRefCalendar.displayName = `ForwardRefCalendar(${
+  (Calendar as any).displayName
+})`;
+
+const MemoForwardRef = React.memo(ForwardRefCalendar);
+MemoForwardRef.displayName = `Memo(${ForwardRefCalendar.displayName})`;
+export default MemoForwardRef;
