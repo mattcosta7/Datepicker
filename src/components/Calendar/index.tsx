@@ -1,4 +1,6 @@
-import { isValid, startOfMonth } from 'date-fns/esm';
+/** @jsx jsx */
+import { jsx, css } from '@emotion/core';
+import { isValid, startOfMonth, startOfDay } from 'date-fns/esm';
 import { ThemeProvider } from 'emotion-theming';
 import * as React from 'react';
 import {
@@ -17,7 +19,7 @@ import reducer from './reducer';
 
 export interface DateChangeHandler extends BaseDateChangeHandler {}
 export interface CalendarProps {
-  date?: Date;
+  date?: Date | number;
   weekDays?: string[];
   weekStart?: number;
   locale?: string | string[];
@@ -42,13 +44,18 @@ const Calendar = ({
   forwardedRef,
 }: CalendarProps & { forwardedRef?: any }) => {
   const theme = React.useMemo(() => ({}), []);
-  const time = (date && date.getTime()) || undefined;
+
+  const time = React.useMemo(() => {
+    if (!date) return undefined;
+    return startOfDay(date).getTime();
+  }, [date]);
+
   const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
     reducer,
     {
-      pageDate: startOfMonth(date || new Date()).getTime(),
+      pageDate: startOfMonth(time || new Date()).getTime(),
       focusDate: undefined,
-      selectedDate: (date && date.getTime()) || undefined,
+      selectedDate: time || undefined,
     }
   );
   const lastSelectedDate = React.useRef(selectedDate);
@@ -75,7 +82,12 @@ const Calendar = ({
               <FocusDateContext.Provider value={focusDate}>
                 <SelectedDateOnChangeContext.Provider value={onChange}>
                   <ErrorBoundary date={time}>
-                    <div ref={forwardedRef}>
+                    <div
+                      ref={forwardedRef}
+                      css={(_theme: any) => css`
+                        border: 1px solid black;
+                      `}
+                    >
                       <Header />
                       <CalendarBody />
                     </div>
@@ -116,7 +128,7 @@ class ErrorBoundary extends React.PureComponent<any, any> {
   render() {
     const { hasError } = this.state;
     const { children } = this.props;
-    return <>{hasError ? 'An invalid date has been passed in' : children}</>;
+    return <p>{hasError ? 'An invalid date has been passed in' : children}</p>;
   }
 }
 

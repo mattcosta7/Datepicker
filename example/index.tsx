@@ -1,7 +1,7 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Input } from '../src';
+import { DatePicker } from '../src';
 import locales from './locales';
 
 const App = () => {
@@ -48,7 +48,7 @@ const App = () => {
           ))}
         </select>
       </form>
-      <Input locale={locale} showWeekNumbers={showWeekNumbers} />
+      <DatePicker locale={locale} showWeekNumbers={showWeekNumbers} />
     </div>
   );
 };
