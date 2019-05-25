@@ -20,4 +20,4 @@ const Weekdays = () => {
   );
 };
 
-export default React.memo(Weekdays);
+export default Weekdays;

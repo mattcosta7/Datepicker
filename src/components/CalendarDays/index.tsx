@@ -159,4 +159,4 @@ const CalendarDays = () => {
   );
 };
 
-export default React.memo(CalendarDays);
+export default CalendarDays;

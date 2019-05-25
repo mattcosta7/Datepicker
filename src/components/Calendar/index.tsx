@@ -128,7 +128,7 @@ class ErrorBoundary extends React.PureComponent<any, any> {
   render() {
     const { hasError } = this.state;
     const { children } = this.props;
-    return <p>{hasError ? 'An invalid date has been passed in' : children}</p>;
+    return hasError ? 'An invalid date has been passed in' : children;
   }
 }
 
@@ -142,6 +142,4 @@ ForwardRefCalendar.displayName = `ForwardRefCalendar(${
   (Calendar as any).displayName
 })`;
 
-const MemoForwardRef = React.memo(ForwardRefCalendar);
-MemoForwardRef.displayName = `Memo(${ForwardRefCalendar.displayName})`;
-export default MemoForwardRef;
+export default ForwardRefCalendar;

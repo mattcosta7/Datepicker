@@ -145,6 +145,4 @@ const Header = () => {
   );
 };
 
-export default React.memo(Header, () => {
-  return false;
-});
+export default Header;

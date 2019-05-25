@@ -81,4 +81,4 @@ const YearSelector = ({
   );
 };
 
-export default React.memo(YearSelector);
+export default YearSelector;

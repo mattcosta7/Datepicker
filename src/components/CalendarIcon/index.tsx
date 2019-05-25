@@ -30,4 +30,4 @@ const ForwardedRef = React.forwardRef<
 
 ForwardedRef.displayName = `CalendarIcon`;
 
-export default React.memo(ForwardedRef);
+export default ForwardedRef;

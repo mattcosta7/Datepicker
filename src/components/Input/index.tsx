@@ -120,8 +120,4 @@ const ForwardRefInput = React.forwardRef<
 
 ForwardRefInput.displayName = 'ForwardRef(Input)';
 
-const Memo = React.memo(ForwardRefInput);
-
-Memo.displayName = `Memo(${ForwardRefInput.displayName})`;
-
-export default Memo;
+export default ForwardRefInput;

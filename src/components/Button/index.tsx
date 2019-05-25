@@ -2,9 +2,7 @@
 import { css, jsx } from '@emotion/core';
 import * as React from 'react';
 
-const Button = ({
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+const Button = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
   const styles = React.useCallback(
     (_theme: any) => css`
       appearance: none;
@@ -21,4 +19,4 @@ const Button = ({
   return <button css={styles} {...props} />;
 };
 
-export default React.memo(Button);
+export default Button;

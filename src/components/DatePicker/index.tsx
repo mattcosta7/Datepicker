@@ -1,34 +1,20 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { parse } from 'date-fns/esm';
 import Calendar from '../Calendar';
 import { LocaleContext, RtlContext } from '../../context';
 import defaultLocale from '../../utils/default-locale';
 import rtlLocales from '../../utils/rtl-locales';
 import Input from '../Input';
 
-const defaultParseDate = (s: any) => {
-  if (s instanceof Date) {
-    return s;
-  }
-  const d = s.split('/');
-  return new Date(
-    parseInt(d[2], 10),
-    parseInt(d[0], 10) - 1,
-    parseInt(d[1], 10)
-  );
-};
-
-const DatePicker = ({
+export default function DatePicker({
   locale,
   date,
   showWeekNumbers,
   portalContainer = document.body,
-  parseDate = defaultParseDate,
   closeOnSelect,
   closeOnClickOutside = true,
   onChange,
-}: any) => {
+}: any) {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const calendarRef = React.useRef<HTMLDivElement | null>(null);
   const [isOpen, setOpen] = React.useState(false);
@@ -36,6 +22,27 @@ const DatePicker = ({
   const innerLocale = React.useMemo(() => {
     return Intl.getCanonicalLocales(locale || defaultLocale);
   }, [locale]);
+
+  const { placeholder, dateParts } = React.useMemo(() => {
+    const formatToPartsResult = new Intl.DateTimeFormat(
+      innerLocale
+    ).formatToParts(new Date());
+
+    const ret = [];
+    for (const part in formatToPartsResult) {
+      const p = formatToPartsResult[part];
+      if (p.type !== 'literal') {
+        ret.push(p.type);
+      } else {
+        ret.push(p.value);
+      }
+    }
+
+    return {
+      placeholder: ret.join(''),
+      dateParts: formatToPartsResult.filter(i => i.type !== 'literal'),
+    };
+  }, [innerLocale]);
 
   const isRtl = React.useMemo(() => {
     return !!innerLocale.find((locale: string) => {
@@ -46,23 +53,48 @@ const DatePicker = ({
     });
   }, [innerLocale]);
 
-  const [{ currentDate, inputDate = '' }, setState] = React.useState<any>({
-    currentDate: (date && parseDate(date).getTime()) || '',
-    inputDate: date || '',
-  });
+  const parseValue = React.useCallback(
+    (value: string) => {
+      const splitValue = value.split(/[\\\/]|-/);
+
+      return new Date(
+        parseInt(splitValue[dateParts.findIndex(t => t.type === 'year')], 10),
+        parseInt(splitValue[dateParts.findIndex(t => t.type === 'month')], 10) -
+          1,
+        parseInt(splitValue[dateParts.findIndex(t => t.type === 'day')], 10)
+      );
+    },
+    [dateParts]
+  );
+
+  const [{ currentDate, inputDate = '' }, setState] = React.useState<any>(
+    () => {
+      if (!date)
+        return {
+          currentDate: '',
+          inputDate: '',
+        };
+
+      return {
+        currentDate: parseValue(date).getTime(),
+        inputDate: date || '',
+      };
+    }
+  );
 
   const onBlur = React.useCallback(
     e => {
       if (e.target instanceof HTMLInputElement) {
         const { value } = e.target;
+
         setState((s: any) => ({
           ...s,
-          currentDate: parse(value, 'M/d/yyyy', new Date()),
+          currentDate: parseValue(value),
           inputDate: value,
         }));
       }
     },
-    [setState]
+    [setState, parseValue]
   );
 
   const onKeyDown = React.useCallback(
@@ -95,7 +127,7 @@ const DatePicker = ({
       if (e.value) {
         setState((s: any) => ({
           ...s,
-          currentDate: e.value,
+          currentDate: e.value.getTime(),
           inputDate: e.value,
         }));
       }
@@ -108,8 +140,6 @@ const DatePicker = ({
     },
     [setOpen, setState, closeOnSelect, onChange]
   );
-
-  console.log(currentDate, inputDate);
 
   const calendar = (
     <Calendar
@@ -127,7 +157,7 @@ const DatePicker = ({
 
   const value = React.useMemo(() => {
     return inputDate instanceof Date
-      ? new Intl.DateTimeFormat(innerLocale).format(inputDate as Date)
+      ? new Intl.DateTimeFormat(innerLocale).format(inputDate)
       : inputDate;
   }, [inputDate, innerLocale]);
 
@@ -173,11 +203,10 @@ const DatePicker = ({
           onChange={handleChange}
           onKeyDown={onKeyDown}
           onFocus={openCalendar}
+          placeholder={placeholder}
         />
         {isOpen && calendarContainer}
       </RtlContext.Provider>
     </LocaleContext.Provider>
   );
-};
-
-export default React.memo(DatePicker);
+}

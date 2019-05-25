@@ -12,40 +12,40 @@ import {
 } from '../context';
 import { chunk } from '../utils/array';
 
-export const useCalendarDispatch = () => {
+export function useCalendarDispatch() {
   const dispatch = React.useContext(CalendarDispatchContext);
   if (!dispatch) throw new Error('Cannot use dispatch outside of a context');
   return dispatch;
-};
-export const usePageDate = () => {
+}
+export function usePageDate() {
   const pageDate = React.useContext(PageDateContext);
   if (!pageDate) throw new Error('Cannot use dispatch outside of a context');
   return pageDate;
-};
-export const useLocale = (): [string | string[], boolean] => {
+}
+export function useLocale(): [string | string[], boolean] {
   const locale = React.useContext(LocaleContext);
   const rtl = React.useContext(RtlContext);
   if (typeof locale === 'undefined' || typeof rtl === 'undefined') {
     throw new Error('Must be in a context');
   }
   return [locale, rtl];
-};
+}
 
-export const useFocusDate = () => {
+export function useFocusDate() {
   const focusDate = React.useContext(FocusDateContext);
   return focusDate;
-};
+}
 
-export const useShowWeekNumbers = () => {
+export function useShowWeekNumbers() {
   const showWeekNumbers = React.useContext(ShowWeekNumberContext);
   return showWeekNumbers;
-};
+}
 
-export const useSelectedDate = () => {
+export function useSelectedDate() {
   const selectedDate = React.useContext(SelectedDateContext);
   return selectedDate;
-};
-export const useOnChange = () => {
+}
+export function useOnChange() {
   const selectedDate = useSelectedDate();
   const onChange = React.useContext(SelectedDateOnChangeContext);
 
@@ -55,26 +55,25 @@ export const useOnChange = () => {
     }
   }, [onChange, selectedDate]);
   return onChange;
-};
+}
 
-export const useWeekdays = () => {
+export function useWeekdays() {
   const [locale] = useLocale();
   const weekDays = React.useMemo(() => {
     const arr: string[] = [];
     const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    for (var day = 4; day <= 10; day++) {
+    for (let day = 4; day <= 10; day++) {
       arr.push(formatter.format(new Date(1970, 0, day)));
     }
     return arr;
   }, [locale]);
   return weekDays;
-};
+}
 
-export const useCalendarDaysByWeek = () => {
+export function useDays() {
   const pageDate = usePageDate();
-
-  const weeks = React.useMemo(() => {
-    return chunk(
+  const days = React.useMemo(
+    () =>
       [
         ...Array.from({ length: getDay(pageDate) }),
         ...Array.from({ length: getDaysInMonth(pageDate) }),
@@ -82,14 +81,22 @@ export const useCalendarDaysByWeek = () => {
           length: 6 - getDay(endOfMonth(pageDate)),
         }),
       ].map((_, i) => addDays(pageDate, i - getDay(pageDate))),
-      7
-    );
-  }, [pageDate]);
+    [pageDate]
+  );
+  return days;
+}
+
+export function useCalendarDaysByWeek() {
+  const days = useDays();
+
+  const weeks = React.useMemo(() => {
+    return chunk(days, 7);
+  }, [days]);
 
   return weeks;
-};
+}
 
-export const useMonthNames = () => {
+export function useMonthNames() {
   const [locale] = useLocale();
   const months = React.useMemo(() => {
     const format = new Intl.DateTimeFormat(locale, { month: 'long' });
@@ -101,4 +108,4 @@ export const useMonthNames = () => {
     return _months;
   }, [locale]);
   return months;
-};
+}

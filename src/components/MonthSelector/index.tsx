@@ -30,4 +30,4 @@ const MonthSelector = () => {
   );
 };
 
-export default React.memo(MonthSelector);
+export default MonthSelector;

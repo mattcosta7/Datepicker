@@ -129,8 +129,4 @@ const ForwardRefDay = React.forwardRef<
 
 ForwardRefDay.displayName = 'ForwardRef(Day)';
 
-const MemoForwardRef = React.memo(ForwardRefDay);
-
-MemoForwardRef.displayName = 'Memo(ForwardRef(Day))';
-
-export default MemoForwardRef;
+export default ForwardRefDay;

@@ -21,4 +21,4 @@ const Weekday = ({ dayNumber, children }: any) => {
   return <span css={style}>{children}</span>;
 };
 
-export default React.memo(Weekday);
+export default Weekday;
