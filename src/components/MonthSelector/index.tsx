@@ -10,14 +10,11 @@ const MonthSelector = () => {
   const pageDate = usePageDate();
   const months = useMonthNames();
 
-  const handleMonthChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      dispatch({ type: SET_PAGE_MONTH, month: parseInt(e.target.value, 10) });
-    },
-    [dispatch]
-  );
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch({ type: SET_PAGE_MONTH, month: parseInt(e.target.value, 10) });
+  };
 
-  const currentMonthIndex = React.useMemo(() => getMonth(pageDate), [pageDate]);
+  const currentMonthIndex = getMonth(pageDate);
 
   return (
     <select value={currentMonthIndex} onChange={handleMonthChange}>

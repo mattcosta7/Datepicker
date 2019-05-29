@@ -43,12 +43,9 @@ const Calendar = ({
   showWeekNumbers,
   forwardedRef,
 }: CalendarProps & { forwardedRef?: any }) => {
-  const theme = React.useMemo(() => ({}), []);
+  const theme = {};
 
-  const time = React.useMemo(() => {
-    if (!date) return undefined;
-    return startOfDay(date).getTime();
-  }, [date]);
+  const time = date && startOfDay(date).getTime();
 
   const [{ pageDate, focusDate, selectedDate }, dispatch] = React.useReducer(
     reducer,

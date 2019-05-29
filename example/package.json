@@ -7,17 +7,19 @@
     "start": "parcel index.html"
   },
   "dependencies": {
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "../node_modules/react",
+    "react-dom": "../node_modules/react-dom",
     "react-app-polyfill": "^1.0.1"
   },
   "alias": {
     "react": "../node_modules/react",
-    "react-dom": "../node_modules/react-dom"
+    "react-dom": "../node_modules/react-dom",
+    "@types/react": "../node_modules/@types/react",
+    "@types/react-dom": "../node_modules/@types/react-dom"
   },
   "devDependencies": {
-    "@types/react": "16.8.17",
-    "@types/react-dom": "16.8.4",
+    "@types/react": "../node_modules/@types/react",
+    "@types/react-dom": "../node_modules/@types/react-dom",
     "parcel": "^1.12.3"
   }
 }

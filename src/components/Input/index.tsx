@@ -9,39 +9,19 @@ const Input = ({ forwardedRef, onFocus, onBlur, ...props }: any) => {
 
   const [focused, setFocused] = React.useState(false);
 
-  const focusInput = React.useCallback(() => {
+  const focusInput = () => {
     if (inputRef.current instanceof HTMLInputElement) {
       setFocused(true);
       inputRef.current.focus();
     }
-  }, [setFocused]);
+  };
 
-  const blurInput = React.useCallback(() => {
+  const blurInput = () => {
     if (inputRef.current instanceof HTMLInputElement) {
       setFocused(false);
       inputRef.current.blur();
     }
-  }, [setFocused]);
-
-  const handleFocus = React.useCallback(
-    e => {
-      setFocused(true);
-      if (onFocus && typeof onFocus === 'function') {
-        onFocus(e);
-      }
-    },
-    [setFocused, onFocus]
-  );
-
-  const handleBlur = React.useCallback(
-    e => {
-      setFocused(false);
-      if (onBlur && typeof onBlur === 'function') {
-        onBlur(e);
-      }
-    },
-    [setFocused, onBlur]
-  );
+  };
 
   React.useEffect(() => {
     const handler = (event: MouseEvent) => {
@@ -104,8 +84,18 @@ const Input = ({ forwardedRef, onFocus, onBlur, ...props }: any) => {
         }
         ref={inputRef}
         placeholder="MM/DD/YYYY"
-        onFocus={handleFocus}
-        onBlur={handleBlur}
+        onFocus={e => {
+          setFocused(true);
+          if (onFocus && typeof onFocus === 'function') {
+            onFocus(e);
+          }
+        }}
+        onBlur={e => {
+          setFocused(false);
+          if (onBlur && typeof onBlur === 'function') {
+            onBlur(e);
+          }
+        }}
         {...props}
       />
       <CalendarIcon />

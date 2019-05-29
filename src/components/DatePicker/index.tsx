@@ -19,9 +19,7 @@ export default function DatePicker({
   const calendarRef = React.useRef<HTMLDivElement | null>(null);
   const [isOpen, setOpen] = React.useState(false);
 
-  const innerLocale = React.useMemo(() => {
-    return Intl.getCanonicalLocales(locale || defaultLocale);
-  }, [locale]);
+  const innerLocale = Intl.getCanonicalLocales(locale || defaultLocale);
 
   const { placeholder, dateParts } = React.useMemo(() => {
     const formatToPartsResult = new Intl.DateTimeFormat(
@@ -44,28 +42,23 @@ export default function DatePicker({
     };
   }, [innerLocale]);
 
-  const isRtl = React.useMemo(() => {
-    return !!innerLocale.find((locale: string) => {
-      return (
-        rtlLocales.hasOwnProperty(locale) ||
-        rtlLocales.hasOwnProperty(locale.split('-')[0])
-      );
-    });
-  }, [innerLocale]);
+  const isRtl = !!innerLocale.find((locale: string) => {
+    return (
+      rtlLocales.hasOwnProperty(locale) ||
+      rtlLocales.hasOwnProperty(locale.split('-')[0])
+    );
+  });
 
-  const parseValue = React.useCallback(
-    (value: string) => {
-      const splitValue = value.split(/[\\\/]|-/);
+  const parseValue = (value: string) => {
+    const splitValue = value.split(/[\\\/]|-/);
 
-      return new Date(
-        parseInt(splitValue[dateParts.findIndex(t => t.type === 'year')], 10),
-        parseInt(splitValue[dateParts.findIndex(t => t.type === 'month')], 10) -
-          1,
-        parseInt(splitValue[dateParts.findIndex(t => t.type === 'day')], 10)
-      );
-    },
-    [dateParts]
-  );
+    return new Date(
+      parseInt(splitValue[dateParts.findIndex(t => t.type === 'year')], 10),
+      parseInt(splitValue[dateParts.findIndex(t => t.type === 'month')], 10) -
+        1,
+      parseInt(splitValue[dateParts.findIndex(t => t.type === 'day')], 10)
+    );
+  };
 
   const [{ currentDate, inputDate = '' }, setState] = React.useState<any>(
     () => {
@@ -80,33 +73,6 @@ export default function DatePicker({
         inputDate: date || '',
       };
     }
-  );
-
-  const onBlur = React.useCallback(
-    e => {
-      if (e.target instanceof HTMLInputElement) {
-        const { value } = e.target;
-
-        setState((s: any) => ({
-          ...s,
-          currentDate: parseValue(value),
-          inputDate: value,
-        }));
-      }
-    },
-    [setState, parseValue]
-  );
-
-  const onKeyDown = React.useCallback(
-    e => {
-      switch (e.key) {
-        case 'Enter':
-          e.preventDefault();
-          onBlur(e);
-          return;
-      }
-    },
-    [onBlur]
   );
 
   const handleChange = React.useCallback(
@@ -155,14 +121,22 @@ export default function DatePicker({
     ? createPortal(calendar, portalContainer)
     : calendar;
 
-  const value = React.useMemo(() => {
-    return inputDate instanceof Date
+  const value =
+    inputDate instanceof Date
       ? new Intl.DateTimeFormat(innerLocale).format(inputDate)
       : inputDate;
-  }, [inputDate, innerLocale]);
 
-  const openCalendar = React.useCallback(() => setOpen(true), [setOpen]);
+  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target instanceof HTMLInputElement) {
+      const { value } = e.target;
 
+      setState((s: any) => ({
+        ...s,
+        currentDate: parseValue(value),
+        inputDate: value,
+      }));
+    }
+  };
   React.useEffect(() => {
     const handler = (event: MouseEvent) => {
       if (!closeOnClickOutside) return;
@@ -201,8 +175,15 @@ export default function DatePicker({
           value={value}
           onBlur={onBlur}
           onChange={handleChange}
-          onKeyDown={onKeyDown}
-          onFocus={openCalendar}
+          onKeyDown={e => {
+            switch (e.key) {
+              case 'Enter':
+                e.preventDefault();
+                onBlur((e as unknown) as React.FocusEvent<HTMLInputElement>);
+                return;
+            }
+          }}
+          onFocus={() => setOpen(true)}
           placeholder={placeholder}
         />
         {isOpen && calendarContainer}

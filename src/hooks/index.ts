@@ -59,53 +59,42 @@ export function useOnChange() {
 
 export function useWeekdays() {
   const [locale] = useLocale();
-  const weekDays = React.useMemo(() => {
-    const arr: string[] = [];
-    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    for (let day = 4; day <= 10; day++) {
-      arr.push(formatter.format(new Date(1970, 0, day)));
-    }
-    return arr;
-  }, [locale]);
-  return weekDays;
+  const arr: string[] = [];
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+  for (let day = 4; day <= 10; day++) {
+    arr.push(formatter.format(new Date(1970, 0, day)));
+  }
+  return arr;
 }
 
 export function useDays() {
   const pageDate = usePageDate();
-  const days = React.useMemo(
-    () =>
-      [
-        ...Array.from({ length: getDay(pageDate) }),
-        ...Array.from({ length: getDaysInMonth(pageDate) }),
-        ...Array.from({
-          length: 6 - getDay(endOfMonth(pageDate)),
-        }),
-      ].map((_, i) => addDays(pageDate, i - getDay(pageDate))),
-    [pageDate]
-  );
+  const days = [
+    ...Array.from({ length: getDay(pageDate) }),
+    ...Array.from({ length: getDaysInMonth(pageDate) }),
+    ...Array.from({
+      length: 6 - getDay(endOfMonth(pageDate)),
+    }),
+  ].map((_, i) => addDays(pageDate, i - getDay(pageDate)));
   return days;
 }
 
 export function useCalendarDaysByWeek() {
   const days = useDays();
 
-  const weeks = React.useMemo(() => {
-    return chunk(days, 7);
-  }, [days]);
+  const weeks = chunk(days, 7);
 
   return weeks;
 }
 
 export function useMonthNames() {
   const [locale] = useLocale();
-  const months = React.useMemo(() => {
-    const format = new Intl.DateTimeFormat(locale, { month: 'long' });
-    const _months: string[] = [];
-    for (let month = 0; month < 12; month++) {
-      const testDate = new Date(new Date().getFullYear(), month, 1, 0, 0, 0);
-      _months.push(format.format(testDate));
-    }
-    return _months;
-  }, [locale]);
+
+  const format = new Intl.DateTimeFormat(locale, { month: 'long' });
+  const months: string[] = [];
+  for (let month = 0; month < 12; month++) {
+    const testDate = new Date(new Date().getFullYear(), month, 1, 0, 0, 0);
+    months.push(format.format(testDate));
+  }
   return months;
 }

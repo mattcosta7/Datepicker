@@ -87,10 +87,13 @@ export default (
       const nextSelectedDate = new Date(action.date);
       const nextPageDate = startOfMonth(nextSelectedDate);
       if (!isValid(nextSelectedDate) || !isValid(nextPageDate)) return state;
+
+      const nextSelectedDateTime = nextSelectedDate.getTime();
+      if (state.selectedDate === nextSelectedDateTime) return state;
       return {
         ...state,
         pageDate: nextPageDate.getTime(),
-        selectedDate: nextSelectedDate.getTime(),
+        selectedDate: nextSelectedDateTime,
       };
     }
     case DECREMENT_PAGE_MONTH: {
@@ -131,9 +134,12 @@ export default (
 
       const nextPageDate = setMonth(state.pageDate, month);
       if (!isValid(nextPageDate)) return state;
+
+      const nextPageDateTime = nextPageDate.getTime();
+      if (nextPageDateTime === state.pageDate) return state;
       return {
         ...state,
-        pageDate: nextPageDate.getTime(),
+        pageDate: nextPageDateTime,
       };
     }
     case SET_PAGE_YEAR: {
@@ -142,25 +148,33 @@ export default (
 
       const nextPageDate = setYear(state.pageDate, year);
       if (!isValid(nextPageDate)) return state;
+
+      const nextPageDateTime = nextPageDate.getTime();
+      if (state.pageDate === nextPageDateTime) return state;
       return {
         ...state,
-        pageDate: nextPageDate.getTime(),
+        pageDate: nextPageDateTime,
       };
     }
     case SET_PAGE_DATE: {
       const nextPageDate = new Date(action.date);
       if (!isValid(nextPageDate)) return state;
+      const nextPageDateTime = nextPageDate.getTime();
+      if (state.pageDate === nextPageDateTime) return state;
       return {
         ...state,
-        pageDate: nextPageDate.getTime(),
+        pageDate: nextPageDateTime,
       };
     }
     case SET_FOCUS_DATE: {
       const nextFocusDate = new Date(action.date);
       if (!isValid(nextFocusDate)) return state;
+
+      const nextFocusDateTime = nextFocusDate.getTime();
+      if (state.focusDate === nextFocusDateTime) return state;
       return {
         ...state,
-        focusDate: nextFocusDate.getTime(),
+        focusDate: nextFocusDateTime,
       };
     }
     case INCREMENT_FOCUS_DATE: {

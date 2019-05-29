@@ -18,88 +18,54 @@ const Header = () => {
   const pageDate = usePageDate();
   const [locale, rtl] = useLocale();
 
-  const dateFormatter = React.useMemo(() => {
-    return new Intl.DateTimeFormat(locale, {
-      month: 'long',
-      year: 'numeric',
-    }).format;
-  }, [locale]);
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    year: 'numeric',
+  });
 
-  const prevMonth = React.useMemo(
-    () => dateFormatter(addMonths(pageDate, -1)),
-    [pageDate, dateFormatter]
-  );
-  const prevYear = React.useMemo(() => dateFormatter(addYears(pageDate, -1)), [
-    pageDate,
-    dateFormatter,
-  ]);
-  const nextMonth = React.useMemo(() => dateFormatter(addMonths(pageDate, 1)), [
-    pageDate,
-    dateFormatter,
-  ]);
-  const nextYear = React.useMemo(() => dateFormatter(addYears(pageDate, 1)), [
-    pageDate,
-    dateFormatter,
-  ]);
+  const prevMonth = dateFormatter.format(addMonths(pageDate, -1));
+  const prevYear = dateFormatter.format(addYears(pageDate, -1));
+  const nextMonth = dateFormatter.format(addMonths(pageDate, 1));
+  const nextYear = dateFormatter.format(addYears(pageDate, 1));
 
-  const decrementPageYear = React.useCallback(() => {
+  const decrementPageYear = () => {
     dispatch({ type: DECREMENT_PAGE_YEAR });
-  }, [dispatch]);
-  const incrementPageYear = React.useCallback(() => {
+  };
+  const incrementPageYear = () => {
     dispatch({ type: INCREMENT_PAGE_YEAR });
-  }, [dispatch]);
-  const decrementPageMonth = React.useCallback(() => {
+  };
+  const decrementPageMonth = () => {
     dispatch({ type: DECREMENT_PAGE_MONTH });
-  }, [dispatch]);
-  const incrementPageMonth = React.useCallback(() => {
+  };
+  const incrementPageMonth = () => {
     dispatch({ type: INCREMENT_PAGE_MONTH });
-  }, [dispatch]);
+  };
 
-  const handleKeyDown = React.useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      switch (e.key) {
-        case 'ArrowUp':
-          incrementPageYear();
-          break;
-        case 'ArrowDown':
-          decrementPageYear();
-          break;
-      }
-    },
-    [incrementPageYear, decrementPageYear]
-  );
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    switch (e.key) {
+      case 'ArrowUp':
+        incrementPageYear();
+        break;
+      case 'ArrowDown':
+        decrementPageYear();
+        break;
+    }
+  };
 
-  const headerStyle = React.useCallback(
-    (_theme: any) => css`
-      direction: ${rtl ? 'rtl' : 'ltr'};
-      display: flex;
-      justify-content: space-between;
-      padding: 1rem;
-    `,
-    [rtl]
-  );
-
-  const cssOrder1 = React.useCallback(
-    (_theme: any) => css`
-      order: 1;
-    `,
-    []
-  );
-  const cssOrder2 = React.useCallback(
-    (_theme: any) => css`
-      order: 2;
-    `,
-    []
-  );
-  const cssOrder3 = React.useCallback(
-    (_theme: any) => css`
-      order: 3;
-    `,
-    []
-  );
   return (
-    <header css={headerStyle}>
-      <div css={cssOrder1}>
+    <header
+      css={(_theme: any) => css`
+        direction: ${rtl ? 'rtl' : 'ltr'};
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+      `}
+    >
+      <div
+        css={(_theme: any) => css`
+          order: 1;
+        `}
+      >
         <Button
           aria-label={prevYear}
           title={prevYear}
@@ -116,7 +82,11 @@ const Header = () => {
           {'<'}
         </Button>
       </div>
-      <div css={cssOrder3}>
+      <div
+        css={(_theme: any) => css`
+          order: 3;
+        `}
+      >
         <Button
           aria-label={nextMonth}
           title={nextMonth}
@@ -133,7 +103,11 @@ const Header = () => {
           {'>>'}
         </Button>
       </div>
-      <div css={cssOrder2}>
+      <div
+        css={(_theme: any) => css`
+          order: 2;
+        `}
+      >
         <MonthSelector />
         <YearSelector
           handleKeyDown={handleKeyDown}

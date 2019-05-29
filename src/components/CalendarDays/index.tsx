@@ -26,101 +26,88 @@ const CalendarDays = () => {
 
   const formatter = new Intl.DateTimeFormat(locale).format;
 
-  const dayFormatter = React.useMemo(() => {
-    return new Intl.DateTimeFormat(locale, {
-      day: 'numeric',
-    }).format;
-  }, [locale]);
+  const dayFormatter = new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+  }).format;
 
-  const dateStringFormatter = React.useMemo(() => {
-    return new Intl.DateTimeFormat(locale, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-    }).format;
-  }, [locale]);
+  const dateStringFormatter = new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+  }).format;
 
-  const numberFormatter = React.useMemo(
-    () => new Intl.NumberFormat(locale).format,
-    [locale]
-  );
+  const numberFormatter = new Intl.NumberFormat(locale).format;
 
-  const handleFocus = React.useCallback(
-    date => {
-      dispatch({ type: SET_FOCUS_DATE, date });
-    },
-    [dispatch]
-  );
+  const handleFocus = (date: Date) => {
+    dispatch({ type: SET_FOCUS_DATE, date });
+  };
 
-  const handleClick = React.useCallback(
-    date => {
-      dispatch({ type: SET_SELECTED_DATE, date });
-    },
-    [dispatch]
-  );
+  const handleClick = (date: Date) => {
+    dispatch({ type: SET_SELECTED_DATE, date });
+  };
 
-  const handleKeyDown = React.useCallback(
-    (e: React.KeyboardEvent<HTMLAnchorElement>, date) => {
-      switch (e.key) {
-        case 'ArrowUp': {
-          dispatch({ type: DECREMENT_FOCUS_DATE, count: 7 });
-          break;
-        }
-        case 'ArrowDown': {
-          dispatch({ type: INCREMENT_FOCUS_DATE, count: 7 });
-          break;
-        }
-        case 'ArrowLeft': {
-          if (rtl) {
-            dispatch({ type: INCREMENT_FOCUS_DATE });
-          } else {
-            dispatch({ type: DECREMENT_FOCUS_DATE });
-          }
-          break;
-        }
-        case 'ArrowRight': {
-          if (rtl) {
-            dispatch({ type: DECREMENT_FOCUS_DATE });
-          } else {
-            dispatch({ type: INCREMENT_FOCUS_DATE });
-          }
-          break;
-        }
-        case 'PageDown': {
-          dispatch({ type: DECREMENT_FOCUS_MONTH });
-          break;
-        }
-        case 'PageUp': {
-          dispatch({ type: DECREMENT_FOCUS_MONTH });
-          break;
-        }
-        case 'Home': {
-          dispatch({ type: DECREMENT_FOCUS_YEAR });
-          break;
-        }
-        case 'End': {
-          dispatch({ type: DECREMENT_FOCUS_YEAR });
-          break;
-        }
-        case 'Enter': {
-          dispatch({ type: SET_SELECTED_DATE, date });
-          // if (onChange) {
-          //   onChange({ value: date });
-          // }
-          break;
-        }
-        case ' ': {
-          dispatch({ type: SET_SELECTED_DATE, date });
-          // if (onChange) {
-          //   onChange({ value: date });
-          // }
-          break;
-        }
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLAnchorElement>,
+    date: Date
+  ) => {
+    switch (e.key) {
+      case 'ArrowUp': {
+        dispatch({ type: DECREMENT_FOCUS_DATE, count: 7 });
+        break;
       }
-    },
-    [dispatch, rtl]
-  );
+      case 'ArrowDown': {
+        dispatch({ type: INCREMENT_FOCUS_DATE, count: 7 });
+        break;
+      }
+      case 'ArrowLeft': {
+        if (rtl) {
+          dispatch({ type: INCREMENT_FOCUS_DATE });
+        } else {
+          dispatch({ type: DECREMENT_FOCUS_DATE });
+        }
+        break;
+      }
+      case 'ArrowRight': {
+        if (rtl) {
+          dispatch({ type: DECREMENT_FOCUS_DATE });
+        } else {
+          dispatch({ type: INCREMENT_FOCUS_DATE });
+        }
+        break;
+      }
+      case 'PageDown': {
+        dispatch({ type: DECREMENT_FOCUS_MONTH });
+        break;
+      }
+      case 'PageUp': {
+        dispatch({ type: DECREMENT_FOCUS_MONTH });
+        break;
+      }
+      case 'Home': {
+        dispatch({ type: DECREMENT_FOCUS_YEAR });
+        break;
+      }
+      case 'End': {
+        dispatch({ type: DECREMENT_FOCUS_YEAR });
+        break;
+      }
+      case 'Enter': {
+        dispatch({ type: SET_SELECTED_DATE, date });
+        // if (onChange) {
+        //   onChange({ value: date });
+        // }
+        break;
+      }
+      case ' ': {
+        dispatch({ type: SET_SELECTED_DATE, date });
+        // if (onChange) {
+        //   onChange({ value: date });
+        // }
+        break;
+      }
+    }
+  };
 
   return (
     <React.Fragment>

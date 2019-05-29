@@ -26,25 +26,16 @@ const Day = ({
     },
   }));
 
-  const sameMonth = React.useMemo(() => isSameMonth(pageDate, date), [
-    pageDate,
-    date,
-  ]);
+  const sameMonth = isSameMonth(pageDate, date);
 
-  const canTabTo = React.useMemo(() => {
-    if (focusDate && isSameMonth(pageDate, focusDate)) {
-      return isSameDay(date, focusDate) ? 0 : -1;
-    } else if (selectedDate && isSameMonth(pageDate, selectedDate)) {
-      return isSameDay(date, selectedDate) ? 0 : -1;
-    } else if (isSameMonth(pageDate, new Date())) {
-      return isSameDay(date, new Date()) ? 0 : -1;
-    }
-    return getDate(date) === 1 ? 0 : -1;
-  }, [focusDate, pageDate, selectedDate, date]);
-
-  const ariaSelected = React.useMemo(() => {
-    return selectedDate && isSameDay(date, selectedDate) ? 'true' : 'false';
-  }, [selectedDate, date]);
+  let canTabTo = getDate(date) === 1 ? 0 : -1;
+  if (focusDate && isSameMonth(pageDate, focusDate)) {
+    canTabTo = isSameDay(date, focusDate) ? 0 : -1;
+  } else if (selectedDate && isSameMonth(pageDate, selectedDate)) {
+    canTabTo = isSameDay(date, selectedDate) ? 0 : -1;
+  } else if (isSameMonth(pageDate, new Date())) {
+    canTabTo = isSameDay(date, new Date()) ? 0 : -1;
+  }
 
   React.useEffect(() => {
     if (
@@ -58,21 +49,10 @@ const Day = ({
 
   const Component = !sameMonth ? 'span' : 'a';
 
-  const onClick = React.useMemo(
-    () => (sameMonth ? () => handleClick(date) : undefined),
-    [sameMonth, date, handleClick]
-  );
-  const onFocus = React.useCallback(() => handleFocus(date), [
-    date,
-    handleFocus,
-  ]);
-  const onKeyDown = React.useCallback(e => handleKeyDown(e, date), [
-    date,
-    handleKeyDown,
-  ]);
-
-  const style = React.useCallback(
-    (_theme: any) => css`
+  return (
+    <Component
+      ref={ref}
+      css={(_theme: any) => css`
       border: 0;
       cursor: pointer;
       display: block;
@@ -104,19 +84,14 @@ const Day = ({
             outline: 0;
           }
         `}
-    `,
-    [sameMonth, selectedDate, date]
-  );
-
-  return (
-    <Component
-      ref={ref}
-      css={style}
+    `}
       tabIndex={canTabTo}
-      onClick={onClick}
-      aria-selected={ariaSelected}
-      onFocus={onFocus}
-      onKeyDown={onKeyDown}
+      onClick={sameMonth ? () => handleClick(date) : undefined}
+      aria-selected={
+        selectedDate && isSameDay(date, selectedDate) ? 'true' : 'false'
+      }
+      onFocus={() => handleFocus(date)}
+      onKeyDown={e => handleKeyDown(e, date)}
       {...props}
     />
   );
@@ -125,8 +100,8 @@ const Day = ({
 const ForwardRefDay = React.forwardRef<
   HTMLAnchorElement | HTMLSpanElement | null,
   DayProps
->((props, ref) => <Day forwardedRef={ref} {...props} />);
-
-ForwardRefDay.displayName = 'ForwardRef(Day)';
+>((props, ref) => {
+  return <Day forwardedRef={ref} {...props} />;
+});
 
 export default ForwardRefDay;

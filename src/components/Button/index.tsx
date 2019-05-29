@@ -3,20 +3,22 @@ import { css, jsx } from '@emotion/core';
 import * as React from 'react';
 
 const Button = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-  const styles = React.useCallback(
-    (_theme: any) => css`
-      appearance: none;
-      background: transparent;
-      border: 0;
-      cursor: pointer;
+  return (
+    <button
+      css={css`
+        appearance: none;
+        background: transparent;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
 
-      &[disabled] {
-        cursor: not-allowed;
-      }
-    `,
-    []
+        &[disabled] {
+          cursor: not-allowed;
+        }
+      `}
+      {...props}
+    />
   );
-  return <button css={styles} {...props} />;
 };
 
 export default Button;
