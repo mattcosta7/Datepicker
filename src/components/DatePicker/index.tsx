@@ -21,26 +21,21 @@ export default function DatePicker({
 
   const innerLocale = Intl.getCanonicalLocales(locale || defaultLocale);
 
-  const { placeholder, dateParts } = React.useMemo(() => {
-    const formatToPartsResult = new Intl.DateTimeFormat(
-      innerLocale
-    ).formatToParts(new Date());
+  const formatToPartsResult = new Intl.DateTimeFormat(
+    innerLocale
+  ).formatToParts(new Date());
 
-    const ret = [];
-    for (const part in formatToPartsResult) {
-      const p = formatToPartsResult[part];
-      if (p.type !== 'literal') {
-        ret.push(p.type);
+  const placeholder = formatToPartsResult
+    .map(item => {
+      if (item.type !== 'literal') {
+        return item.type;
       } else {
-        ret.push(p.value);
+        return item.value;
       }
-    }
+    }, [])
+    .join('');
 
-    return {
-      placeholder: ret.join(''),
-      dateParts: formatToPartsResult.filter(i => i.type !== 'literal'),
-    };
-  }, [innerLocale]);
+  const dateParts = formatToPartsResult.filter(i => i.type !== 'literal');
 
   const isRtl = !!innerLocale.find((locale: string) => {
     return (
