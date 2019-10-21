@@ -770,7 +770,15 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@../node_modules/@types/react":
+"@types/react@*":
+  version "16.9.9"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.9.tgz#a62c6f40f04bc7681be5e20975503a64fe783c3a"
+  integrity sha512-L+AudFJkDukk+ukInYvpoAPyJK5q1GanFOINOJnM0w6tUgITuWvJ4jyoBPFL7z4/L8hGLd+K/6xR5uUjXu0vVg==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^2.2.0"
+
+"@types/react@../node_modules/@types/react":
   version "16.8.19"
   dependencies:
     "@types/prop-types" "*"
@@ -4461,9 +4469,9 @@ safe-regex@^1.1.0:
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
 safer-eval@^1.3.0:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/safer-eval/-/safer-eval-1.3.3.tgz#0309e9fcc0609e66c1b599fd0d4772132b260ca8"
-  integrity sha512-j/qb0rtnwTp5V1D7nR0Ns/14HU8OiHPaoZNJhM+Lfmv1nbXZCXG9LHaVW157agEocdSVAeeRNddK/yuWfalzGQ==
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/safer-eval/-/safer-eval-1.3.5.tgz#a75a1193a4e1dfadd34a8c87ad08e7b978c494b1"
+  integrity sha512-BJ//K2Y+EgCbOHEsDGS5YahYBcYy7JcFpKDo2ba5t4MnOGHYtk7HvQkcxTDFvjQvJ0CRcdas/PyF+gTTCay+3w==
   dependencies:
     clones "^1.2.0"
 
